@@ -177,7 +177,9 @@ We define \emph{match error} $\varepsilon$ to quantify estimator agreement:
     \varepsilon = \frac{|D_{\text{geom}} - D_{\text{spec}}|}{(D_{\text{geom}} + D_{\text{spec}})/2 + \delta}
     \label{eq:match_error}
 \end{equation}
-where $D_{\text{geom}}$ is a geometric proxy (e.g., participation ratio), $D_{\text{spec}}$ is a spectral proxy (e.g., spectral entropy), and $\delta > 0$ is a small regularization constant.
+where $D_{\text{geom}}$ is a geometric proxy (e.g., participation ratio of delay-embedded covariance), $D_{\text{spec}}$ is a spectral proxy (e.g., normalized spectral entropy), and $\delta \approx 10^{-2}$ is a regularization constant preventing divergence when both measures are small.
+
+\textbf{Interpretive caveats.} Match error $\varepsilon$ is an \emph{operational marker} for cross-modal consistency of constraints, not a metaphysical definition of life. It can fail innocently: finite data length, measurement noise, nonstationarity, mixed dynamical regimes, and estimator bias can all produce apparent mismatch. The claim is not that low $\varepsilon$ proves life, but that living systems should show \emph{robust} low $\varepsilon$ across temporal windows, measurement modalities, and perturbations---while simulations show fragile or architecture-dependent patterns. Systematic, reproducible estimator agreement is the signature; isolated measurements are not.
 
 This yields two distinct failure modes:
 \begin{itemize}
@@ -209,6 +211,8 @@ Living systems exhibit \textbf{constraint closure}: the system's organization co
 A data center has massive Shannon entropy---trillions of bits---but no intrinsic organization. You can partition it arbitrarily without destroying its function. A living cell has vastly more microstate complexity, but more importantly, its organization is not arbitrary. Remove any major component and function collapses. The constraints form a closed network of mutual dependence.
 
 Rosen \citep{rosen1991} formalized this as ``closure to efficient causation'': living systems build the machinery that builds themselves. This is not information processing in the computational sense---it is constraint-maintaining matter.
+
+\textbf{Cross-scale coherence in practice.} Consider cardiovascular regulation: cardiac pacemaker cells generate intrinsic rhythms, modulated by autonomic innervation, which is itself regulated by baroreflex loops responding to arterial pressure, which depends on vascular tone controlled by local metabolic signals. Each scale constrains the others; none operates independently. Disrupt any level---pacemaker dysfunction, autonomic neuropathy, baroreflex failure---and the entire hierarchy destabilizes. This is geometry: a multi-scale constraint architecture that must be maintained as a whole.
 
 \subsection{Dormancy: Geometry Without Dynamics}
 
@@ -263,6 +267,8 @@ Living systems generate their own time. Circadian rhythms, metabolic oscillation
 
 This matters because oscillations are how geometry maintains itself. In a living system, the rhythms stabilize the structure, and the structure shapes the rhythms. This circular causation is the signature of constraint closure. In an AI system, there is no intrinsic rhythm to stabilize anything.
 
+\textbf{Acknowledging dynamical AI architectures.} Recurrent neural networks, reservoir computing, spiking neural networks, and active inference agents all incorporate temporal dynamics. Our claim is not that AI lacks dynamics entirely, but that current systems lack \emph{endogenous, viability-coupled, multi-timescale dynamics that maintain the substrate itself}. A reservoir has dynamics, but they are typically driven externally and do not maintain the reservoir's own coherence. An RL agent optimizes a reward signal, but the signal is externally specified and the agent's substrate (weights, architecture) remains static during inference. The distinction is between dynamics \emph{in} computation versus dynamics \emph{of} the computing substrate.
+
 \subsection{No Viability Coupling}
 
 Perhaps the deepest difference: AI systems are not coupled to their own survival.
@@ -281,7 +287,7 @@ But the geometry they traverse is not instantiated in the substrate. It exists a
 
 A parallel insight has emerged in fault-tolerant quantum computation. Computational power can either be \emph{injected} (prepared externally and purified) or \emph{cultivated} (grown within a protected code manifold through internal dynamics). Living systems cultivate; they maintain structure endogenously. Current AI injects; it imposes structure through training.
 
-This connection runs deeper than analogy. Since the underlying physical substrate is quantum, a scale-invariant regime of coherent organization may in principle preserve quantum structure across biological scales. Even where such preservation is limited, the resulting dynamics remain naturally described by quantum mathematics: the effective state space exhibits contextuality, non-commuting operations, and projection-like updates under intervention and coarse-graining.\footnote{We do not claim universal macroscopic entanglement or that biological function requires long-lived quantum coherence. The claim is structural: if coherent organization is maintained across scales, the algebra of descriptions becomes quantum-like---multiple incompatible low-dimensional projections of a single high-dimensional reality---whether or not microphysical coherence survives.} If a system is truly scale-invariant in its coherent organization, its collective properties will have quantum-like high-dimensional structure. This is not quantum mysticism; it is recognition that quantum formalisms already know how to describe systems whose state spaces cannot be flattened into a single classical description.
+This connection runs deeper than analogy. When a high-dimensional system is coarse-grained---observed at a reduced resolution---the resulting description inherits structure from the underlying geometry. If the system maintains scale-invariant coherent organization, this coarse-graining yields descriptions with quantum-like properties: contextuality (measurement outcomes depend on what else is measured), non-commuting operations (the order of interventions matters), and projection-like updates under observation.\footnote{We do not claim universal macroscopic entanglement or that biological function requires long-lived quantum coherence. The claim is structural: if coherent organization is maintained across scales, the algebra of descriptions becomes quantum-like---multiple incompatible low-dimensional projections of a single high-dimensional reality---whether or not microphysical coherence survives.} This is not quantum mysticism; it is recognition that quantum formalisms naturally describe systems whose state spaces cannot be flattened into a single classical description. The mathematics of complementarity and incompatible observables may apply wherever cross-scale coherence is maintained.
 
 %==============================================================================
 \section{What Would Instantiation Require?}
@@ -328,6 +334,24 @@ This connects to the dormancy insight. A frozen cell retains its geometry becaus
 %==============================================================================
 
 The distinction between simulated and instantiated geometry generates testable predictions.
+
+\subsection{A Minimal Pipeline}
+
+Before detailing predictions, we specify how $\varepsilon$ could be computed from standard physiological data:
+
+\begin{enumerate}
+    \item \textbf{Data acquisition.} Obtain continuous time series (HRV R-R intervals, EEG voltage, calcium fluorescence) with sufficient length ($> 10^3$ samples) and sampling rate appropriate to the system's dominant timescales.
+
+    \item \textbf{Preprocessing.} Detrend, artifact-reject, and segment into overlapping windows (e.g., 5-minute epochs with 50\% overlap for HRV; 2-second epochs for EEG).
+
+    \item \textbf{Geometric proxy ($D_{\text{geom}}$).} Delay-embed each window using Takens' method (embedding dimension $m \geq 2D + 1$ where $D$ is expected attractor dimension; delay $\tau$ from first minimum of mutual information). Compute participation ratio: $\text{PR} = (\sum_i \lambda_i)^2 / \sum_i \lambda_i^2$ from eigenvalues of the embedded covariance matrix.
+
+    \item \textbf{Spectral proxy ($D_{\text{spec}}$).} Compute power spectral density via Welch's method. Normalize to probability distribution and compute spectral entropy: $H_S = -\sum_f p(f) \log p(f)$. Convert to effective spectral dimension by exponentiating: $D_{\text{spec}} = e^{H_S}$.
+
+    \item \textbf{Match error.} Compute $\varepsilon = |D_{\text{geom}} - D_{\text{spec}}| / ((D_{\text{geom}} + D_{\text{spec}})/2 + \delta)$ for each window. Report median and interquartile range across windows.
+\end{enumerate}
+
+This pipeline requires only standard signal processing libraries (e.g., SciPy, MATLAB Signal Processing Toolbox) and produces a single scalar $\varepsilon$ interpretable as degree of estimator agreement.
 
 \subsection{Prediction 1: Estimator Mismatch in AI}
 

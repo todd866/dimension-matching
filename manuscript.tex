@@ -189,6 +189,8 @@ This yields two distinct failure modes:
 
 The distinction matters: pathology is \emph{mismatch}; death is \emph{collapse}.
 
+\textbf{Unifying three literatures.} The match error $\varepsilon$ unifies ideas from physiological complexity \citep{lipsitz1992, goldberger2002}, dynamical systems theory \citep{takens1981}, and multiscale coordination into a single operational marker. This is not a new metric so much as a recognition that these literatures have been measuring complementary aspects of the same underlying phenomenon.
+
 \textbf{Prediction for AI}: Current AI systems should show systematic mismatch---high $D_{\text{geom}}$ (many parameters, complex representations) but low $D_{\text{spec}}$ (no intrinsic oscillations, externally clocked). This would manifest as elevated $\varepsilon$ or, more precisely, as a characteristic pattern of geometric complexity without spectral richness.
 
 %==============================================================================
@@ -225,6 +227,8 @@ Yet they resume full function upon reactivation. What persists in dormancy is no
 This is precisely what distinguishes viable dormancy from death. In death, the geometric structure degrades---proteins denature, membranes rupture, compartmentalization fails. The attractor dissolves. In dormancy, the structure is preserved in a stable low-energy configuration, awaiting the return of conditions that permit dynamics.
 
 \textbf{Life is not ongoing thermodynamic activity; it is preserved geometric coherence that can support dynamics.}
+
+This reveals a deeper distinction: geometry can be stored \emph{physically} but not \emph{symbolically}. A frozen tardigrade is not ``remembering'' its geometry---the geometry is still there, materially preserved. A paused LLM preserves structure only symbolically, as patterns in memory. Dormancy shows that biological geometry persists as physical constraint architecture, not as information \emph{about} constraints.
 
 Crucially, more complex organisms are harder to put into viable dormancy. Mammals cannot be frozen and revived like tardigrades. This makes sense in the geometric framework: higher-dimensional systems have more degrees of freedom whose geometric relationships must be preserved. Dormancy difficulty scales with dimensionality.
 
@@ -273,11 +277,13 @@ This matters because oscillations are how geometry maintains itself. In a living
 
 Perhaps the deepest difference: AI systems are not coupled to their own survival.
 
-A living cell's dynamics are constrained by viability. Stray too far from the viable region of state space and you die. This creates a basin of attraction around functional states---perturbations are absorbed, damage is repaired, coherence is maintained.
+A living cell's dynamics are constrained by viability. Stray too far from the viable region of state space and you die. This creates a basin of attraction around functional states---perturbations are absorbed, damage is repaired, coherence is maintained. In living systems, loss of coherence is catastrophic \emph{to the system itself}.
 
-An LLM has no such coupling. It does not ``care'' whether it persists. Its weights are static between training runs. There is no ongoing process working to maintain coherence. The simulation can be paused, copied, deleted---it makes no difference to the system itself.
+An LLM has no such coupling. It does not ``care'' whether it persists. Its weights are static between training runs. There is no ongoing process working to maintain coherence. The simulation can be paused, copied, deleted---it makes no difference to the system itself. In AI systems, loss of coherence is merely an external performance issue---the substrate is unaffected.
 
 This is not a claim about consciousness. It is a claim about dynamics. Living systems are dynamical systems whose dynamics are constrained by survival. AI systems are not.
+
+\textbf{The ``AI is also a machine'' objection.} One might object that AI runs on physical machines too. But the distinction is not about physicality---it is about whether computation participates in substrate maintenance. In living systems, computation and substrate maintenance are inseparable: the cell's dynamics maintain the cell. In AI, computation occurs \emph{on} a machine but does not maintain it. The GPU does not care what the network computes.
 
 \subsection{Simulation Is Impressive But Substrate-Free}
 
@@ -327,6 +333,14 @@ The unifying principle: instantiated geometry is \emph{cultivated}, not injected
 In living systems, structure is maintained from within, through ongoing dynamics constrained by viability. In current AI, structure is imposed from without, through training on external data. The cultivation principle suggests that genuine geometry requires endogenous maintenance---the system must work to preserve its own coherence.
 
 This connects to the dormancy insight. A frozen cell retains its geometry because the structure is stable at low temperature. A paused LLM retains its weights because they are stored in memory. But only the cell's structure encodes the \emph{potential for dynamics}. The LLM's weights encode information about dynamics, not the dynamics themselves.
+
+\subsection{The Loadability Constraint}
+
+The analysis suggests a general principle: \textbf{information specifying a geometry can only be realized by substrates whose native dynamics already admit that class of constraints.}
+
+You cannot ``load'' cardiac geometry into sand, or neuronal geometry into a spreadsheet, or metabolic geometry into a static database. The substrate must have the dynamical affordances---the capacity for oscillation, regulation, and repair---that the geometry requires. This is not a limitation of our technology but a constraint imposed by the nature of instantiation itself.
+
+This loadability constraint explains why copying life is hard: not because the information is complex (though it is), but because the substrate must be capable of \emph{realizing} the constraints, not merely \emph{representing} them.
 
 %==============================================================================
 \section{Testing the Distinction}

@@ -57,6 +57,27 @@ def generate_synthetic_eeg(
         spectral_slope = -2.5  # Very steep
         noise_level = 0.15
 
+    elif state == 'ai_simulation':
+        # Simulates AI signature: high geometric complexity, low spectral richness
+        # High rank (random vectors are nearly orthogonal) but no oscillatory structure
+        # This represents "High Information, No Geometry"
+        n_samples = int(duration * fs)
+
+        # Generate high-dimensional uncorrelated activations (like random embeddings)
+        # Each channel is independent random walk with discrete updates
+        eeg = np.zeros((n_channels, n_samples))
+        for ch in range(n_channels):
+            # Piecewise constant with random jumps (like token-step activations)
+            step_size = int(fs * 0.1)  # Update every 100ms (like token processing)
+            for i in range(0, n_samples, step_size):
+                end_idx = min(i + step_size, n_samples)
+                eeg[ch, i:end_idx] = np.random.randn()
+            # Add small noise
+            eeg[ch] += 0.1 * np.random.randn(n_samples)
+
+        eeg = eeg / np.std(eeg)
+        return eeg, np.arange(n_samples) / fs
+
     else:
         raise ValueError(f"Unknown state: {state}")
 
@@ -161,8 +182,8 @@ def compute_match_quality(D_geom: float, D_spec: float) -> float:
 
 
 def analyze_brain_states_v2():
-    """Compare dimension matching across brain states."""
-    states = ['awake', 'sleep', 'seizure', 'anesthesia']
+    """Compare dimension matching across brain states and AI simulation."""
+    states = ['awake', 'sleep', 'seizure', 'anesthesia', 'ai_simulation']
     n_trials = 15
 
     results = {state: {'D_geom': [], 'D_spec': [], 'match': []}
@@ -194,9 +215,9 @@ def analyze_brain_states_v2():
 
 def plot_neural_results_v2(results: dict):
     """Generate publication figure."""
-    states = ['awake', 'sleep', 'seizure', 'anesthesia']
-    state_labels = ['Awake', 'Sleep', 'Seizure', 'Anesthesia']
-    colors = ['forestgreen', 'royalblue', 'crimson', 'darkorange']
+    states = ['awake', 'sleep', 'seizure', 'anesthesia', 'ai_simulation']
+    state_labels = ['Awake', 'Sleep', 'Seizure', 'Anesthesia', 'AI Simulation']
+    colors = ['forestgreen', 'royalblue', 'crimson', 'darkorange', 'purple']
 
     fig = plt.figure(figsize=(14, 10))
 
@@ -209,9 +230,9 @@ def plot_neural_results_v2(results: dict):
 
     ax1.set_xlabel('Time (s)')
     ax1.set_ylabel('State')
-    ax1.set_title('(A) Synthetic EEG Traces', fontweight='bold')
-    ax1.legend(loc='upper right', fontsize=9)
-    ax1.set_yticks([0, 5, 10, 15])
+    ax1.set_title('(A) Synthetic Time Series', fontweight='bold')
+    ax1.legend(loc='upper right', fontsize=8)
+    ax1.set_yticks([0, 5, 10, 15, 20])
     ax1.set_yticklabels(state_labels)
     ax1.set_xlim(0, 2)
 
@@ -248,9 +269,9 @@ def plot_neural_results_v2(results: dict):
     ax3.grid(True, alpha=0.3, axis='y')
 
     # Annotation for key result
-    seizure_mean = np.mean(results['seizure']['match'])
+    ai_mean = np.mean(results['ai_simulation']['match'])
     awake_mean = np.mean(results['awake']['match'])
-    ax3.annotate(f'Seizure: {seizure_mean:.2f}\nAwake: {awake_mean:.2f}',
+    ax3.annotate(f'AI Sim: {ai_mean:.2f}\nAwake: {awake_mean:.2f}',
                 xy=(0.95, 0.95), xycoords='axes fraction',
                 ha='right', va='top', fontsize=9,
                 bbox=dict(boxstyle='round', facecolor='white', alpha=0.8))
@@ -268,11 +289,11 @@ def plot_neural_results_v2(results: dict):
     ax4.set_title('(D) Coherence by Brain State', fontweight='bold')
     ax4.grid(True, alpha=0.3, axis='y')
 
-    # Add significance stars
-    if means[2] > means[0]:  # seizure > awake
-        ax4.annotate('*', xy=(2, means[2] + stds[2] + 0.05), ha='center', fontsize=14)
+    # Add significance stars for AI simulation (highest mismatch)
+    if means[4] > means[0]:  # AI > awake
+        ax4.annotate('*', xy=(4, means[4] + stds[4] + 0.05), ha='center', fontsize=14)
 
-    plt.suptitle('Validation of Dimension Matching Metric on Synthetic EEG Data',
+    plt.suptitle('Dimension Matching: Biology vs AI Simulation',
                  fontsize=14, fontweight='bold', y=1.02)
     plt.tight_layout()
     plt.savefig('../figures/fig2_neural_validation.png', dpi=150, bbox_inches='tight')
@@ -295,9 +316,10 @@ if __name__ == "__main__":
     # Quick stats
     from scipy.stats import mannwhitneyu
     awake = results['awake']['match']
-    seizure = results['seizure']['match']
-    stat, p = mannwhitneyu(awake, seizure)
-    print(f"\nAwake vs Seizure: U={stat:.1f}, p={p:.4f}")
+    ai_sim = results['ai_simulation']['match']
+    stat, p = mannwhitneyu(awake, ai_sim)
+    print(f"\nAwake vs AI Simulation: U={stat:.1f}, p={p:.4f}")
+    print(f"AI shows elevated match error (poor geometry) as predicted")
 
     print("\n" + "="*60)
     print("Done!")

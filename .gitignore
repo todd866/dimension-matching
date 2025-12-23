@@ -1,0 +1,22 @@
+# LaTeX build files
+*.aux
+*.bbl
+*.blg
+*.log
+*.out
+*.toc
+*.lof
+*.lot
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+*.nav
+*.snm
+*.vrb
+
+# macOS
+.DS_Store
+
+# Archive folder
+archive/
+__pycache__/

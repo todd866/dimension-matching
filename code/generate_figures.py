@@ -82,7 +82,7 @@ def figure1_gmc_measures():
                 transform=ax.transAxes, ha='right', va='top',
                 fontsize=9, bbox=dict(boxstyle='round', facecolor='white', alpha=0.8))
 
-    plt.suptitle('Gaussian Multiplicative Chaos: Subcritical to Near-Critical',
+    plt.suptitle('Gaussian Multiplicative Chaos: Subcritical Regime (γ < √2)',
                  fontsize=14, fontweight='bold', y=1.02)
     plt.tight_layout()
     plt.savefig('../figures/fig1_gmc_measures.png')

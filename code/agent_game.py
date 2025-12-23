@@ -161,12 +161,16 @@ def compute_payoff(
     allocation: np.ndarray,
     local_gain_weight: float = 1.0,
     stability_weight: float = 2.0,
-    n_samples: int = 5
+    n_samples: int = 3
 ) -> Tuple[float, np.ndarray]:
     """
     Compute payoff for a given variance allocation.
 
-    Payoff = local gains - instability penalty
+    Payoff = local gains - AGENT-SPECIFIC instability penalty
+
+    The key change: stability penalty is now agent-specific (each agent
+    penalized for its own over-allocation), not a common-mode term.
+    This ensures stability_weight actually changes relative incentives.
 
     Parameters
     ----------
@@ -175,7 +179,7 @@ def compute_payoff(
     local_gain_weight : float
         Weight for local variance gains
     stability_weight : float
-        Weight for global stability penalty
+        Weight for individual stability penalty
     n_samples : int
         Number of samples for averaging
 
@@ -190,31 +194,35 @@ def compute_payoff(
     allocation = allocation / np.sum(allocation)
 
     n_scales = len(allocation)
+    uniform = 1.0 / n_scales
 
-    # Local gain: each scale wants more variance
+    # Local gain: each scale wants more variance (logarithmic utility)
     local_gains = local_gain_weight * np.log(allocation + 1e-10)
 
-    # Stability penalty: high concentration is bad
-    # Use Herfindahl index (sum of squared shares)
+    # AGENT-SPECIFIC stability penalty: penalize YOUR OWN over-allocation
+    # Each agent pays a cost proportional to how much they exceed uniform share
+    individual_penalties = stability_weight * (allocation - uniform) ** 2
+
+    # Additional penalty: agents also care about global concentration
+    # (incentive to keep system from collapsing even if you're not the one dominating)
     concentration = np.sum(allocation ** 2)
-    # Also penalize deviation from martingale (uniform) allocation
-    deviation = np.sum((allocation - 1/n_scales) ** 2)
+    global_penalty = 0.5 * stability_weight * concentration
 
-    stability_penalty = stability_weight * (concentration + deviation)
-
-    # Compute dimension matching quality as additional reward
+    # Compute dimension matching quality
     dim_match_bonus = 0
     for _ in range(n_samples):
         signal = multiscale_cascade(n_scales, allocation=allocation)
         d_corr = estimate_dimension_from_signal(signal, 'correlation')
         d_spec = estimate_dimension_from_signal(signal, 'spectral')
         if not np.isnan(d_corr) and not np.isnan(d_spec):
-            # Bonus for matching
             dim_match_bonus += np.exp(-np.abs(d_corr - d_spec))
-
     dim_match_bonus /= n_samples
 
-    individual_payoffs = local_gains - stability_penalty / n_scales + dim_match_bonus / n_scales
+    # Individual payoffs: local gain - individual penalty - share of global penalty + bonus
+    individual_payoffs = (local_gains
+                          - individual_penalties
+                          - global_penalty / n_scales
+                          + dim_match_bonus / n_scales)
     total_payoff = np.sum(individual_payoffs)
 
     return total_payoff, individual_payoffs
@@ -265,7 +273,9 @@ def simulate_dynamics(
     n_rounds: int = 50,
     learning_rate: float = 0.1,
     local_gain_weight: float = 1.0,
-    stability_weight: float = 2.0
+    stability_weight: float = 2.0,
+    init_allocation: Optional[np.ndarray] = None,
+    noise_scale: float = 0.01
 ) -> Tuple[np.ndarray, List[float], List[float]]:
     """
     Simulate learning dynamics toward equilibrium.
@@ -286,6 +296,10 @@ def simulate_dynamics(
         Weight for local gains
     stability_weight : float
         Weight for stability
+    init_allocation : ndarray, optional
+        Initial allocation (if None, uses uniform + small noise)
+    noise_scale : float
+        Scale of noise to add to break symmetry
 
     Returns
     -------
@@ -296,7 +310,16 @@ def simulate_dynamics(
     dim_match_history : list
         Dimension matching quality at each round
     """
-    allocation = np.ones(n_scales) / n_scales
+    if init_allocation is not None:
+        allocation = init_allocation.copy()
+        allocation = allocation / np.sum(allocation)
+    else:
+        # Start near uniform but with small noise to break symmetry
+        allocation = np.ones(n_scales) / n_scales
+        allocation += noise_scale * np.random.randn(n_scales)
+        allocation = np.clip(allocation, 0.01, 0.99)
+        allocation = allocation / np.sum(allocation)
+
     allocation_history = [allocation.copy()]
     payoff_history = []
     dim_match_history = []
@@ -304,7 +327,7 @@ def simulate_dynamics(
     for round_idx in range(n_rounds):
         # Compute current payoff
         payoff, individual = compute_payoff(
-            allocation, local_gain_weight, stability_weight, n_samples=3
+            allocation, local_gain_weight, stability_weight, n_samples=2
         )
         payoff_history.append(payoff)
 
@@ -317,7 +340,7 @@ def simulate_dynamics(
         else:
             dim_match_history.append(np.nan)
 
-        # Gradient-like update: scales with higher payoff get more
+        # Replicator-like update: scales with higher payoff get more
         gradient = individual - np.mean(individual)
         allocation = allocation + learning_rate * gradient * allocation
         allocation = np.clip(allocation, 0.01, 0.99)
@@ -330,7 +353,7 @@ def simulate_dynamics(
 
 def plot_game_dynamics(
     n_scales: int = 5,
-    stability_weights: List[float] = [0.1, 1.0, 4.0]
+    stability_weights: List[float] = [0.05, 0.5, 3.0]
 ):
     """
     Plot game dynamics for different stability weights.
@@ -338,32 +361,32 @@ def plot_game_dynamics(
     Lower stability weight → easier to collapse (one scale dominates)
     Higher stability weight → dimension matching maintained
 
-    Use more extreme weights to show clearer differentiation.
+    Use extreme weights to show clearer differentiation between regimes.
     """
     fig, axes = plt.subplots(2, len(stability_weights), figsize=(14, 8))
 
     np.random.seed(42)  # For reproducibility
 
     for col, sw in enumerate(stability_weights):
-        # For low stability weight, start with slight asymmetry to trigger collapse
-        if sw < 0.5:
-            # Start with biased initial allocation to show collapse
-            init_alloc = np.array([0.4, 0.2, 0.15, 0.15, 0.1])
-            learning_rate = 0.2  # Faster learning amplifies instability
+        # For low stability weight, start with asymmetric allocation to trigger collapse
+        if sw < 0.2:
+            init_alloc = np.array([0.5, 0.2, 0.15, 0.1, 0.05])
+            learning_rate = 0.3  # Faster learning amplifies instability
+        elif sw < 1.0:
+            init_alloc = np.array([0.3, 0.25, 0.2, 0.15, 0.1])
+            learning_rate = 0.15
         else:
-            init_alloc = np.ones(n_scales) / n_scales
+            init_alloc = None  # Will use uniform + noise
             learning_rate = 0.1
 
         alloc_hist, payoff_hist, dim_hist = simulate_dynamics(
             n_scales=n_scales,
-            n_rounds=50,
+            n_rounds=60,
             learning_rate=learning_rate,
-            stability_weight=sw
+            stability_weight=sw,
+            init_allocation=init_alloc,
+            noise_scale=0.02
         )
-
-        # Override first allocation with our initial
-        if sw < 0.5:
-            alloc_hist[0] = init_alloc
 
         # Top row: allocation over time
         ax1 = axes[0, col]
@@ -373,25 +396,27 @@ def plot_game_dynamics(
         ax1.set_xlabel('Round')
         ax1.set_ylabel('Variance Allocation')
         ax1.set_title(f'Stability Weight = {sw}')
-        ax1.set_ylim(0, 0.8)
+        ax1.set_ylim(0, 0.9)
         if col == 0:
             ax1.legend(loc='upper right', fontsize=8)
 
         # Bottom row: dimension matching
         ax2 = axes[1, col]
-        ax2.plot(dim_hist, 'b-', linewidth=2)
+        valid_dim = [d for d in dim_hist if not np.isnan(d)]
+        ax2.plot(range(len(dim_hist)), dim_hist, 'b-', linewidth=2)
         ax2.axhline(0, color='g', linestyle='--', alpha=0.5, label='Perfect match')
         ax2.set_xlabel('Round')
         ax2.set_ylabel('$|D_C - D_F|$')
-        ax2.set_ylim(0, max(2, np.nanmax(dim_hist) * 1.2) if dim_hist else 2)
+        max_dim = max(valid_dim) if valid_dim else 1.0
+        ax2.set_ylim(0, max(2, max_dim * 1.3))
         if col == 0:
             ax2.legend()
 
         # Regime label
-        if sw < 0.5:
+        if sw < 0.2:
             regime = 'COLLAPSE'
             color = 'red'
-        elif sw > 2:
+        elif sw > 1.5:
             regime = 'COHERENT'
             color = 'green'
         else:

@@ -7,13 +7,15 @@
 
 ## Overview
 
-In multiscale chaotic systems, geometric complexity (correlation dimension) and spectral complexity (harmonic dimension) can be independently measured. We show these dimensions provably coincide below a critical threshold—a phenomenon we call *dimension matching*—but decouple at a phase transition where coherent structure collapses. The matching reflects a martingale-like balance across scales:
+In multiscale chaotic systems, geometric complexity (correlation dimension) and spectral complexity (Fourier dimension) can be independently measured. We show these dimensions provably coincide below a critical threshold—a phenomenon we call *dimension matching*—but decouple at a phase transition where coherent structure collapses. Based on the Lin–Qiu–Tan proof of the Garban–Vargas conjecture ([arXiv:2411.13923](https://arxiv.org/abs/2411.13923)), the matching follows a piecewise formula:
 
-$$D_C(\gamma) = D_H(\gamma) = 1 - \frac{\gamma^2}{4}$$
+$$D_C(\gamma) = D_F(\gamma) = D^*(\gamma) = \begin{cases} 1 - \gamma^2 & \gamma < 1/\sqrt{2} \\ (\sqrt{2} - \gamma)^2 & 1/\sqrt{2} \leq \gamma < \sqrt{2} \end{cases}$$
+
+The critical threshold is **γ = √2 ≈ 1.414**.
 
 ## Key Results
 
-- **Dimension matching theorem**: Correlation and harmonic dimensions coincide exactly in subcritical multiscale chaos
+- **Dimension matching theorem**: Correlation and Fourier dimensions coincide exactly in subcritical GMC (γ < √2)
 - **Phase transition diagnostic**: Dimension decoupling signals approach to criticality
 - **Coherence interpretation**: Matching reflects cross-scale constraint consistency (not phase-locking)
 - **Game-theoretic framing**: Subcritical regime = incentive-compatible multiscale contract

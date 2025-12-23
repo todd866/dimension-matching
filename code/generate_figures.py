@@ -2,9 +2,12 @@
 Generate all figures for the Dimension Matching paper.
 
 Figure 1: GMC measures at different gamma values (subcritical to near-critical)
-Figure 2: Dimension matching plot (D_C vs D_H across gamma)
+Figure 2: Dimension matching plot (D_C vs D_F across gamma) with theory curve
 Figure 3: Phase diagram / regime schematic
 Figure 4: Game-theoretic interpretation schematic
+Figure 5: Information vs Dimension conceptual diagram
+
+Note: Critical γ = √2 ≈ 1.414 (not 2!)
 """
 
 import numpy as np
@@ -16,8 +19,10 @@ from gmc_simulation import (
     generate_log_correlated_field,
     construct_gmc_measure,
     estimate_correlation_dimension,
-    estimate_spectral_dimension,
-    simulate_gmc_ensemble
+    estimate_fourier_dimension,
+    simulate_gmc_ensemble,
+    theory_dimension,
+    GAMMA_CRITICAL
 )
 
 # Style settings
@@ -40,16 +45,16 @@ def figure1_gmc_measures():
     Figure 1: GMC measures at different gamma values.
 
     Shows how the measure becomes increasingly concentrated (spiky)
-    as gamma approaches the critical value of 2.
+    as gamma approaches the critical value of √2 ≈ 1.414.
     """
     print("Generating Figure 1: GMC measures...")
 
     n_points = 4096
     theta = np.linspace(0, 2*np.pi, n_points, endpoint=False)
 
-    gammas = [0.3, 0.8, 1.3, 1.8]
-    labels = ['Subcritical (γ=0.3)', 'Subcritical (γ=0.8)',
-              'Subcritical (γ=1.3)', 'Near-critical (γ=1.8)']
+    # Subcritical values only (γ < √2 ≈ 1.414)
+    gammas = [0.3, 0.6, 0.9, 1.2]
+    labels = [f'γ={g}, D*={theory_dimension(g):.2f}' for g in gammas]
 
     fig, axes = plt.subplots(2, 2, figsize=(10, 8))
 
@@ -90,12 +95,12 @@ def figure2_dimension_matching():
     """
     Figure 2: Dimension matching across gamma values.
 
-    Shows D_C ≈ D_H in subcritical regime, with deviation near criticality.
+    Shows D_C ≈ D_F in subcritical regime (γ < √2), with theory curve.
     """
     print("Generating Figure 2: Dimension matching...")
 
-    # Simulate across gamma values
-    gamma_values = np.linspace(0.2, 1.9, 18)
+    # Simulate across gamma values (subcritical only)
+    gamma_values = np.linspace(0.1, 1.35, 15)  # Stay below √2 ≈ 1.414
     results = simulate_gmc_ensemble(
         gamma_values,
         n_realizations=15,
@@ -105,49 +110,59 @@ def figure2_dimension_matching():
 
     fig, axes = plt.subplots(1, 2, figsize=(12, 5))
 
-    # Panel A: D_C and D_H vs gamma
+    # Panel A: D_C and D_F vs gamma with theory curve
     ax1 = axes[0]
+
+    # Theory curve
+    gamma_fine = np.linspace(0.01, 1.4, 100)
+    D_theory_fine = [theory_dimension(g) for g in gamma_fine]
+    ax1.plot(gamma_fine, D_theory_fine, 'k-', linewidth=2, label='Theory $D^*(\\gamma)$')
+
     ax1.errorbar(results['gamma'], results['D_C'],
-                 yerr=results['D_C_std'], fmt='o-', color='steelblue',
-                 label='Correlation dim. $D_C$', capsize=3, markersize=6)
-    ax1.errorbar(results['gamma'], results['D_H'],
-                 yerr=results['D_H_std'], fmt='s-', color='coral',
-                 label='Harmonic dim. $D_H$', capsize=3, markersize=6)
+                 yerr=results['D_C_std'], fmt='o', color='steelblue',
+                 label='$D_C$ (estimated)', capsize=3, markersize=6, alpha=0.8)
+    ax1.errorbar(results['gamma'], results['D_F'],
+                 yerr=results['D_F_std'], fmt='s', color='coral',
+                 label='$D_F$ (estimated)', capsize=3, markersize=6, alpha=0.8)
 
     # Mark critical point
-    ax1.axvline(x=2.0, color='red', linestyle='--', alpha=0.5, label='Critical (γ=2)')
-    ax1.axvspan(1.7, 2.0, alpha=0.1, color='red', label='Near-critical zone')
+    ax1.axvline(x=GAMMA_CRITICAL, color='red', linestyle='--', alpha=0.5,
+                label=f'Critical (γ=√2≈{GAMMA_CRITICAL:.2f})')
+    ax1.axvline(x=1.0/np.sqrt(2), color='gray', linestyle=':', alpha=0.5,
+                label=f'Transition (γ=1/√2≈{1/np.sqrt(2):.2f})')
 
     ax1.set_xlabel('GMC parameter γ')
-    ax1.set_ylabel('Dimension estimate')
+    ax1.set_ylabel('Dimension')
     ax1.set_title('(A) Dimensions vs. γ', fontweight='bold')
-    ax1.legend(loc='upper left')
-    ax1.set_xlim(0, 2.1)
+    ax1.legend(loc='upper right', fontsize=9)
+    ax1.set_xlim(0, 1.5)
+    ax1.set_ylim(0, 1.1)
     ax1.grid(True, alpha=0.3)
 
-    # Panel B: D_C vs D_H scatter
+    # Panel B: D_C vs D_F scatter showing matching
     ax2 = axes[1]
 
     # Color by gamma
-    colors = plt.cm.viridis((results['gamma'] - 0.2) / 1.7)
-    for i, (dc, dh, g) in enumerate(zip(results['D_C'], results['D_H'], results['gamma'])):
-        ax2.scatter(dc, dh, c=[colors[i]], s=80, edgecolors='k', linewidths=0.5)
+    gamma_norm = (results['gamma'] - 0.1) / 1.3
+    colors = plt.cm.viridis(gamma_norm)
+    for i, (dc, df, g) in enumerate(zip(results['D_C'], results['D_F'], results['gamma'])):
+        if not np.isnan(dc) and not np.isnan(df):
+            ax2.scatter(dc, df, c=[colors[i]], s=80, edgecolors='k', linewidths=0.5)
 
     # Add diagonal line (perfect matching)
-    lims = [0, max(np.nanmax(results['D_C']), np.nanmax(results['D_H'])) * 1.1]
-    ax2.plot(lims, lims, 'k--', alpha=0.5, label='$D_C = D_H$')
+    ax2.plot([0, 1], [0, 1], 'k--', linewidth=2, alpha=0.7, label='$D_C = D_F$')
 
     # Colorbar
-    sm = plt.cm.ScalarMappable(cmap='viridis', norm=plt.Normalize(0.2, 1.9))
+    sm = plt.cm.ScalarMappable(cmap='viridis', norm=plt.Normalize(0.1, 1.35))
     sm.set_array([])
     cbar = plt.colorbar(sm, ax=ax2, label='γ')
 
     ax2.set_xlabel('Correlation dimension $D_C$')
-    ax2.set_ylabel('Harmonic dimension $D_H$')
+    ax2.set_ylabel('Fourier dimension $D_F$')
     ax2.set_title('(B) Dimension Matching', fontweight='bold')
     ax2.legend(loc='lower right')
-    ax2.set_xlim(lims)
-    ax2.set_ylim(lims)
+    ax2.set_xlim(0, 1.05)
+    ax2.set_ylim(0, 1.05)
     ax2.set_aspect('equal')
     ax2.grid(True, alpha=0.3)
 
@@ -177,7 +192,7 @@ def figure3_phase_diagram():
 
     # Coherent (middle region - dimension matching)
     ax.fill([0.4, 0.85, 0.85, 0.4], [0, 0, 1, 1],
-            color='lightblue', alpha=0.5, label='Coherent\n($D_C = D_H$)')
+            color='lightblue', alpha=0.5, label='Coherent\n($D_C = D_F$)')
 
     # Collapsed (high gamma / strong noise)
     ax.fill([0.85, 1, 1, 0.85], [0, 0, 1, 1],
@@ -205,7 +220,7 @@ def figure3_phase_diagram():
     # Custom legend
     handles = [
         mpatches.Patch(color='lightgray', alpha=0.5, label='Incoherent'),
-        mpatches.Patch(color='lightblue', alpha=0.5, label='Coherent ($D_C = D_H$)'),
+        mpatches.Patch(color='lightblue', alpha=0.5, label='Coherent ($D_C = D_F$)'),
         mpatches.Patch(color='lightsalmon', alpha=0.5, label='Collapsed'),
         Line2D([0], [0], color='red', linewidth=2, label='Critical transition')
     ]

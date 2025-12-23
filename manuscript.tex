@@ -38,15 +38,15 @@ Sydney, NSW 2006, Australia\\
 
 % LEAD PARAGRAPH (Chaos requirement - will appear in boldface)
 \noindent\textbf{%
-When can we trust a low-dimensional summary of a high-dimensional chaotic system? We show that ``dimension matching''---the agreement between geometric (correlation) and spectral (harmonic) complexity measures---provides a sharp criterion. In multiscale stochastic systems, these independently defined dimensions coincide exactly when a martingale-like balance holds across scales. This balance can be interpreted as a cooperative equilibrium: no scale ``cheats'' the cascade. At a critical threshold, the balance breaks, the dimensions decouple, and low-dimensional projections become unreliable. This framework offers a universal diagnostic for regime collapse applicable to neural dynamics, turbulence, and multi-agent coordination.
+When can we trust a low-dimensional summary of a high-dimensional chaotic system? We show that ``dimension matching''---the agreement between geometric (correlation) and spectral (Fourier) complexity measures---provides a sharp criterion. In multiscale stochastic systems, these independently defined dimensions coincide exactly when a martingale-like balance holds across scales. This balance can be interpreted as a cooperative equilibrium: no scale ``cheats'' the cascade. At a critical threshold, the balance breaks, the dimensions decouple, and low-dimensional projections become unreliable. This framework offers a diagnostic for regime collapse applicable to neural dynamics, turbulence, and multi-agent coordination.
 }
 
 \vspace{1em}
 
 \begin{abstract}
-In multiscale stochastic systems, two fundamentally different notions of complexity—correlation dimension (measuring geometric clumpiness) and harmonic dimension (measuring spectral decay)—can be independently defined. Recent mathematical work on Gaussian multiplicative chaos (GMC) establishes that these dimensions provably coincide below a critical noise threshold, but decouple at the phase transition where the system collapses. We argue this ``dimension matching'' phenomenon reflects a coherence condition: cross-scale consistency maintained by martingale-like conservation laws. When the consistency holds, multiple distinct projections of the high-dimensional dynamics agree; when it fails, low-dimensional summaries become unreliable. We develop a game-theoretic interpretation where dimension matching corresponds to an incentive-compatible multiscale contract—no scale can profitably ``defect'' from the cascade. The breakdown of matching thus serves as a universal diagnostic for regime collapse, applicable to neural dynamics, cellular coordination, and multi-agent systems. Our framework clarifies when coarse-grained observations faithfully represent high-dimensional chaotic structure, and when they must fail.
+In multiscale stochastic systems, two fundamentally different notions of complexity—correlation dimension (measuring geometric clumpiness) and Fourier dimension (measuring spectral decay)—can be independently defined. Recent mathematical work on Gaussian multiplicative chaos (GMC) establishes that these dimensions provably coincide below a critical threshold ($\gamma < \sqrt{2}$), but decouple at the phase transition where the system collapses. We argue this ``dimension matching'' phenomenon reflects a coherence condition: cross-scale consistency maintained by martingale-like conservation laws. When the consistency holds, multiple distinct projections of the high-dimensional dynamics agree; when it fails, low-dimensional summaries become unreliable. We develop a game-theoretic interpretation where dimension matching corresponds to an incentive-compatible multiscale contract—no scale can profitably ``defect'' from the cascade. The breakdown of matching provides a diagnostic for regime transitions, with potential applications to neural dynamics, cellular coordination, and multi-agent systems. Our framework clarifies when coarse-grained observations faithfully represent high-dimensional chaotic structure, and when they must fail.
 
-\textbf{Keywords:} dimension matching; Gaussian multiplicative chaos; multiscale dynamics; phase transitions; coherence; correlation dimension; spectral analysis
+\textbf{Keywords:} dimension matching; Gaussian multiplicative chaos; multiscale dynamics; phase transitions; coherence; correlation dimension; Fourier dimension
 \end{abstract}
 
 %==============================================================================
@@ -60,15 +60,15 @@ We focus on \emph{multiscale} chaotic systems: dynamics exhibiting structure at 
 \begin{enumerate}
     \item \textbf{Correlation dimension} ($D_C$): A geometric measure capturing how probability mass clusters across scales—the ``clumpiness'' of the system's distribution in state space.
 
-    \item \textbf{Harmonic dimension} ($D_H$): A spectral measure capturing how Fourier or wavelet coefficients decay with frequency—the ``oscillatory richness'' of the dynamics.
+    \item \textbf{Fourier dimension} ($D_F$): A spectral measure capturing how Fourier coefficients decay with frequency—the ``oscillatory richness'' of the dynamics.
 \end{enumerate}
 
-These arise from different mathematical traditions (geometry and probability vs.\ harmonic analysis) and need not agree \emph{a priori}. Yet recent work on Gaussian multiplicative chaos (GMC) establishes a remarkable result: in the subcritical regime, $D_C = D_H$ exactly \citep{garban2023, lin2024}. The dimensions match—until a phase transition, at which point the equivalence breaks and the system collapses.
+These arise from different mathematical traditions (geometry and probability vs.\ harmonic analysis) and need not agree \emph{a priori}. Yet recent work on Gaussian multiplicative chaos (GMC) establishes a remarkable result: in the subcritical regime, $D_C = D_F$ exactly \citep{garban2023, lin2024}. The dimensions match—until a phase transition, at which point the equivalence breaks and the system collapses.
 
 This paper develops three claims:
 
 \begin{enumerate}
-    \item \textbf{Dimension matching as coherence}: The coincidence of $D_C$ and $D_H$ reflects a \emph{cross-scale consistency} condition—what we call coherence. This is not phase-locking (which reduces dimensionality) but the maintenance of structured relationships across many degrees of freedom.
+    \item \textbf{Dimension matching as coherence}: The coincidence of $D_C$ and $D_F$ reflects a \emph{cross-scale consistency} condition—what we call coherence. This is not phase-locking (which reduces dimensionality) but the maintenance of structured relationships across many degrees of freedom.
 
     \item \textbf{Collapse as diagnostic}: The breakdown of dimension matching signals proximity to criticality. This provides a measurable early-warning indicator for regime shifts in complex systems.
 
@@ -127,13 +127,13 @@ The construction proceeds as follows. Let $X$ be a log-correlated Gaussian field
 \end{equation}
 The GMC measure is formally $\mu_\gamma = e^{\gamma X - \frac{\gamma^2}{2}\mathbb{E}[X^2]} dx$, with regularization needed to make sense of the exponential of a distribution.
 
-The parameter $\gamma \in [0, 2)$ controls the ``strength'' of the chaos:
+The parameter $\gamma \in [0, \sqrt{2})$ controls the ``strength'' of the chaos:
 \begin{itemize}
-    \item \textbf{Subcritical} ($\gamma < 2$): The measure is well-defined, multifractal, and captures structured fluctuations at every scale.
+    \item \textbf{Subcritical} ($\gamma < \sqrt{2}$): The measure is well-defined, multifractal, and captures structured fluctuations at every scale.
 
-    \item \textbf{Critical} ($\gamma = 2$): The measure collapses—mass concentrates on a set of zero Lebesgue measure.
+    \item \textbf{Critical} ($\gamma = \sqrt{2}$): The measure collapses—mass concentrates on a set of zero Lebesgue measure.
 
-    \item \textbf{Supercritical} ($\gamma > 2$): The naive construction fails entirely; modified definitions are required.
+    \item \textbf{Supercritical} ($\gamma > \sqrt{2}$): The naive construction fails entirely; modified definitions are required.
 \end{itemize}
 
 GMC appears in turbulence modeling, quantum gravity (Liouville theory), random matrix theory, and the statistical mechanics of disordered systems. Its universality makes it a natural template for multiscale chaos.
@@ -141,7 +141,7 @@ GMC appears in turbulence modeling, quantum gravity (Liouville theory), random m
 \begin{figure}[H]
 \centering
 \includegraphics[width=\textwidth]{figures/fig1_gmc_measures.png}
-\caption{Gaussian multiplicative chaos measures at increasing values of the parameter $\gamma$. As $\gamma$ increases toward the critical value of 2, the measure becomes increasingly concentrated (spiky), with mass condensing onto smaller regions. The participation ratio (PR) quantifies this concentration: higher values indicate more uniform distribution, while lower values indicate mass concentration. In the subcritical regime ($\gamma < 2$), the measure remains well-defined; at criticality, it collapses.}
+\caption{Gaussian multiplicative chaos measures at increasing values of the parameter $\gamma$. As $\gamma$ increases toward the critical value of $\sqrt{2} \approx 1.41$, the measure becomes increasingly concentrated (spiky), with mass condensing onto smaller regions. The participation ratio (PR) quantifies this concentration: higher values indicate more uniform distribution, while lower values indicate mass concentration. In the subcritical regime ($\gamma < \sqrt{2}$), the measure remains well-defined; at criticality, it collapses.}
 \label{fig:gmc}
 \end{figure}
 
@@ -151,89 +151,97 @@ GMC appears in turbulence modeling, quantum gravity (Liouville theory), random m
 
 \subsection{Two Notions of Dimension for GMC}
 
-For GMC measures $\mu_\gamma$ on the circle, Garban and Vargas defined two dimensions \citep{garban2023}:
+For GMC measures $\mu_\gamma$ on the circle, Garban and Vargas identified two independently defined dimensions \citep{garban2023}:
 
-\begin{definition}[Correlation Dimension]
-The correlation dimension $D_C(\gamma)$ characterizes the decay of correlations:
+\begin{definition}[Correlation Dimension / $L^2$-spectrum]
+The correlation dimension $D_C(\gamma)$ (equivalently, the $L^2$-spectrum $\dim_2$) characterizes the integrability of pairwise correlations:
 \begin{equation}
-    \mathbb{E}[\mu_\gamma(B(x,r)) \mu_\gamma(B(y,r))] \sim |x-y|^{-\xi(\gamma)} \quad \text{as } |x-y| \to 0
+    \iint |x-y|^{-s} \, d\mu_\gamma(x) \, d\mu_\gamma(y) < \infty
 \end{equation}
-where the exponent $\xi(\gamma)$ determines $D_C$.
+for $s < D_C(\gamma)$, where $D_C$ is the largest exponent for which this integral converges.
 \end{definition}
 
-\begin{definition}[Harmonic Dimension]
-The harmonic dimension $D_H(\gamma)$ characterizes spectral decay. Expanding $\mu_\gamma$ in Fourier modes, the power in mode $n$ scales as:
+\begin{definition}[Fourier Dimension]
+The Fourier dimension $D_F(\gamma)$ characterizes the decay rate of Fourier coefficients:
 \begin{equation}
-    \mathbb{E}[|\hat{\mu}_\gamma(n)|^2] \sim |n|^{-\alpha(\gamma)}
+    |\hat{\mu}_\gamma(n)| = O(|n|^{-s/2}) \quad \text{as } |n| \to \infty
 \end{equation}
-where $\alpha(\gamma)$ determines $D_H$.
+where $D_F$ is the supremum of all $s$ for which this decay holds.
 \end{definition}
 
-These dimensions emerge from completely different calculations—one geometric (how ``clumpy'' the measure is), one harmonic (how fast frequencies decay). There is no obvious reason they should agree.
+These dimensions emerge from completely different calculations—one geometric (how probability mass clusters), one spectral (how fast Fourier coefficients decay). There is no obvious reason they should agree.
 
 \subsection{The Garban-Vargas Conjecture and Its Resolution}
 
-In 2023, Garban and Vargas conjectured a precise formula relating $D_C$ and $D_H$ for subcritical GMC \citep{garban2023}:
+In 2023, Garban and Vargas conjectured that the Fourier dimension of GMC equals the correlation dimension, and gave the explicit formula \citep{garban2023}:
 
 \begin{theorem}[Dimension Matching, \citealt{lin2024}]
 \label{thm:matching}
-For Gaussian multiplicative chaos with parameter $\gamma \in (0, 2)$:
+For Gaussian multiplicative chaos with parameter $\gamma \in (0, \sqrt{2})$:
 \begin{equation}
-    D_C(\gamma) = D_H(\gamma)
+    D_C(\gamma) = D_F(\gamma) = D^*(\gamma)
+\end{equation}
+where the common dimension $D^*(\gamma)$ is given by:
+\begin{equation}
+    D^*(\gamma) = \begin{cases}
+        1 - \gamma^2 & \text{if } 0 < \gamma < 1/\sqrt{2} \\[4pt]
+        (\sqrt{2} - \gamma)^2 & \text{if } 1/\sqrt{2} \leq \gamma < \sqrt{2}
+    \end{cases}
 \end{equation}
 The two independently defined dimensions coincide exactly throughout the subcritical regime.
 \end{theorem}
 
-Lin, Qiu, and Tan proved this conjecture by revealing the mechanism: GMC possesses a \emph{martingale structure} across scales \citep{lin2024}. A martingale is a ``fair game''—the expected value at finer scales equals the value at coarser scales, with no systematic drift. For GMC, this means randomness is ``conserved'' across the cascade: each scale contributes fluctuations in a balanced way.
+The piecewise nature of the formula reflects a transition at $\gamma = 1/\sqrt{2} \approx 0.707$: below this threshold, fluctuations are weak enough that the dimension decreases quadratically with $\gamma^2$; above it, the approach to criticality at $\gamma = \sqrt{2}$ dominates.
 
-The martingale structure forces an energy conservation law that couples geometric and spectral properties. Because the same conservation law governs both, the dimensions must agree.
+Lin, Qiu, and Tan proved this conjecture by revealing the mechanism: GMC possesses a \emph{vector-valued martingale structure} across scales \citep{lin2024}. A martingale is a ``fair game''—the expected value at finer scales equals the value at coarser scales, with no systematic drift. For GMC, this means fluctuations are ``conserved'' across the cascade: each scale contributes variance in a balanced way.
+
+The martingale structure forces a conservation law that couples geometric and spectral properties. Because the same conservation law governs both, the dimensions must agree.
 
 \subsection{Mathematical Formalization}
 
-We now provide a more precise formulation of the dimension matching result. For a measure $\mu$ on the circle $\mathbb{T}$, define:
+The proof of dimension matching relies on a sophisticated martingale analysis. For a measure $\mu$ on the circle $\mathbb{T}$:
 
-\begin{definition}[Generalized Dimensions]
-The \emph{correlation exponent} $\xi$ is defined by the two-point correlation scaling:
+\begin{definition}[$L^2$-spectrum and Fourier Dimension]
+The \emph{$L^2$-spectrum} (or correlation dimension) is:
 \begin{equation}
-    \int_{\mathbb{T}} \int_{\mathbb{T}} |x - y|^{-\xi} \, d\mu(x) \, d\mu(y) < \infty
+    \dim_2(\mu) = \sup\left\{ s : \iint |x - y|^{-s} \, d\mu(x) \, d\mu(y) < \infty \right\}
 \end{equation}
-for the largest $\xi$ for which this integral converges. The correlation dimension is $D_C = 1 - \xi/2$.
-
-The \emph{Fourier dimension} is defined by:
+The \emph{Fourier dimension} is:
 \begin{equation}
-    D_F = \limsup_{|n| \to \infty} \frac{-2 \log |\hat{\mu}(n)|}{\log |n|}
+    \dim_F(\mu) = \sup\left\{ s : |\hat{\mu}(n)| = O(|n|^{-s/2}) \right\}
 \end{equation}
 where $\hat{\mu}(n) = \int_{\mathbb{T}} e^{-2\pi i n x} \, d\mu(x)$.
 \end{definition}
 
-For GMC measures $\mu_\gamma$, the explicit formulas are known:
+In general $\dim_F \leq \dim_2$, with equality characterizing ``Salem measures.'' The Garban-Vargas conjecture asserts that GMC is almost surely Salem:
 
-\begin{proposition}[Explicit Dimension Formulas for GMC]
-For the GMC measure $\mu_\gamma$ with $\gamma \in (0, 2)$:
+\begin{proposition}[Dimension Formulas for GMC, \citealt{lin2024}]
+For the GMC measure $\mu_\gamma$ with $\gamma \in (0, \sqrt{2})$:
 \begin{equation}
-    D_C(\gamma) = D_F(\gamma) = 1 - \frac{\gamma^2}{4}
+    \dim_2(\mu_\gamma) = \dim_F(\mu_\gamma) = D^*(\gamma) = \begin{cases}
+        1 - \gamma^2 & \gamma < 1/\sqrt{2} \\
+        (\sqrt{2} - \gamma)^2 & \gamma \geq 1/\sqrt{2}
+    \end{cases}
 \end{equation}
-Both dimensions decrease quadratically from $1$ (at $\gamma = 0$) to $0$ (at $\gamma = 2$).
+Both dimensions decrease from $1$ at $\gamma = 0$ to $0$ at $\gamma = \sqrt{2}$.
 \end{proposition}
 
-The key to the proof is the following martingale structure:
-
-\begin{lemma}[Martingale Property]
-Let $\mu_\gamma^{(n)}$ denote the GMC measure at resolution $2^{-n}$. Then $\{\mu_\gamma^{(n)}\}_{n \geq 0}$ forms a martingale with respect to the natural filtration generated by the underlying Gaussian field.
+\begin{lemma}[Vector-Valued Martingale Structure]
+The GMC construction via Bacry-Muzy decomposition yields a sequence of $\ell^q$-valued martingales. The uniform $L^p(\ell^q)$-boundedness of these martingales, established via Pisier's martingale inequalities, forces optimal Fourier decay rates.
 \end{lemma}
 
-This martingale property implies that the ``mass'' allocated to each scale is conserved in expectation. The proof of dimension matching proceeds by showing that both $D_C$ and $D_F$ can be computed from the same martingale moments, forcing their equality.
+The proof proceeds by showing that the same martingale bounds control both the correlation integral and Fourier coefficient decay, forcing their equality throughout the subcritical regime.
 
-The critical exponent $\gamma = 2$ marks the boundary where the martingale ceases to be uniformly integrable. Beyond this point, mass concentrates on atoms and the dimension matching relationship breaks down.
+The critical exponent $\gamma = \sqrt{2}$ marks the boundary where the martingale ceases to be uniformly integrable. Beyond this point, mass concentrates on atoms and dimension matching breaks down.
 
 \subsection{Collapse at Criticality}
 
-At $\gamma = 2$, the martingale balance breaks. Variance explodes, extremes dominate, and the scale-by-scale conservation fails. Concretely:
+At $\gamma = \sqrt{2}$, the martingale balance breaks. Variance explodes, extremes dominate, and the scale-by-scale conservation fails. Concretely:
 \begin{itemize}
-    \item The GMC measure concentrates on a fractal set of dimension 0 (in a suitable sense)
+    \item The GMC measure collapses to zero (the limiting measure vanishes)
     \item Correlations become singular
     \item Spectral properties diverge
-    \item The relationship $D_C = D_H$ ceases to hold
+    \item The dimension matching relationship $D_C = D_F$ breaks down
 \end{itemize}
 
 This phase transition marks the boundary between ``coherent chaos'' (structured randomness with well-defined projections) and ``pathological collapse'' (where coarse-grained descriptions fail).
@@ -241,7 +249,7 @@ This phase transition marks the boundary between ``coherent chaos'' (structured 
 \begin{figure}[H]
 \centering
 \includegraphics[width=\textwidth]{figures/fig2_dimension_matching.png}
-\caption{Dimension matching in GMC simulations. (A) Correlation dimension $D_C$ and harmonic dimension $D_H$ both decrease as $\gamma$ increases, tracking each other throughout the subcritical regime. Near the critical point ($\gamma \to 2$), both dimensions approach zero as the measure collapses. (B) Scatter plot of $D_C$ vs.\ $D_H$ across $\gamma$ values, showing approximate agreement (points near the diagonal) in the coherent regime. The matching reflects the martingale structure that conserves ``energy'' across scales.}
+\caption{Dimension matching in GMC simulations. (A) Correlation dimension $D_C$ and Fourier dimension $D_F$ both decrease as $\gamma$ increases, tracking each other throughout the subcritical regime. Near the critical point ($\gamma \to \sqrt{2}$), both dimensions approach zero as the measure collapses. (B) Scatter plot of $D_C$ vs.\ $D_F$ across $\gamma$ values, showing approximate agreement (points near the diagonal) in the coherent regime. The solid line shows the theoretical prediction $D^*(\gamma)$; simulated estimates scatter around this curve. The matching reflects the martingale structure that conserves variance across scales.}
 \label{fig:matching}
 \end{figure}
 
@@ -251,7 +259,7 @@ This phase transition marks the boundary between ``coherent chaos'' (structured 
 
 \subsection{What Dimension Matching Reveals}
 
-We interpret Theorem~\ref{thm:matching} as a \emph{coherence condition}. The coincidence of $D_C$ and $D_H$ means that different ways of observing the system—geometric vs.\ spectral—yield consistent answers about its complexity. This is nontrivial: for generic stochastic processes, these dimensions can differ arbitrarily.
+We interpret Theorem~\ref{thm:matching} as a \emph{coherence condition}. The coincidence of $D_C$ and $D_F$ means that different ways of observing the system—geometric vs.\ spectral—yield consistent answers about its complexity. This is nontrivial: for generic stochastic processes, these dimensions can differ arbitrarily.
 
 The agreement reflects an underlying structural property: the system maintains consistent relationships across scales. We call this \emph{cross-scale coherence}.
 
@@ -292,7 +300,7 @@ When this fairness breaks (at criticality), one scale dominates and the entire m
 \begin{figure}[H]
 \centering
 \includegraphics[width=0.85\textwidth]{figures/fig3_phase_diagram.png}
-\caption{Conceptual phase diagram for multiscale chaotic systems. Three regimes are distinguished: (1) \emph{Incoherent}, where coupling is too weak for reliable cross-scale structure; (2) \emph{Coherent}, where dimension matching holds ($D_C = D_H$) and projections faithfully represent high-dimensional dynamics; (3) \emph{Collapsed}, beyond the critical transition, where one scale dominates and multiscale structure degenerates. The phase transition (red line) marks the boundary where martingale balance breaks and coherence is lost.}
+\caption{Conceptual phase diagram for multiscale chaotic systems. Three regimes are distinguished: (1) \emph{Incoherent}, where coupling is too weak for reliable cross-scale structure; (2) \emph{Coherent}, where dimension matching holds ($D_C = D_F$) and projections faithfully represent high-dimensional dynamics; (3) \emph{Collapsed}, beyond the critical transition, where one scale dominates and multiscale structure degenerates. The phase transition (red line) marks the boundary where martingale balance breaks and coherence is lost.}
 \label{fig:phase}
 \end{figure}
 
@@ -321,7 +329,7 @@ This is a classic stability-exploitation tradeoff.
 \subsection{Dimension Matching as Equilibrium}
 
 \begin{proposition}[Informal]
-Dimension matching ($D_C = D_H$) corresponds to a cooperative equilibrium where no scale can unilaterally improve its payoff by deviating from the martingale budget.
+Dimension matching ($D_C = D_F$) corresponds to a cooperative equilibrium where no scale can unilaterally improve its payoff by deviating from the martingale budget.
 \end{proposition}
 
 In the subcritical regime:
@@ -360,7 +368,7 @@ This framing suggests:
 \begin{figure}[H]
 \centering
 \includegraphics[width=\textwidth]{figures/fig6_game_dynamics.png}
-\caption{Simulation of multiscale coordination game dynamics. Each panel shows learning dynamics for a different stability penalty weight. \textbf{Left} (low stability weight): The system collapses---one scale dominates and dimension matching fails. \textbf{Center} (moderate weight): Transition regime with fluctuating allocations. \textbf{Right} (high stability weight): The system converges to uniform (martingale-balanced) allocation, maintaining dimension matching. Bottom row shows the dimension matching error $|D_C - D_H|$ over time; coherent regimes maintain low error.}
+\caption{Simulation of multiscale coordination game dynamics. Each panel shows learning dynamics for a different stability penalty weight. \textbf{Left} (low stability weight): The system collapses---one scale dominates and dimension matching fails. \textbf{Center} (moderate weight): Transition regime with fluctuating allocations. \textbf{Right} (high stability weight): The system converges to uniform (martingale-balanced) allocation, maintaining dimension matching. Bottom row shows the dimension matching error $|D_C - D_F|$ over time; coherent regimes maintain low error.}
 \label{fig:game_dynamics}
 \end{figure}
 
@@ -368,23 +376,25 @@ This framing suggests:
 \section{Applications}
 %==============================================================================
 
+\textbf{A note on proxies.} The rigorous dimension matching result ($D_C = D_F$) applies specifically to GMC measures. For empirical applications, we cannot compute true correlation or Fourier dimensions from finite time series. Instead, we use \emph{proxy measures}: participation ratio for geometric complexity, spectral entropy for harmonic complexity. The hypothesis is that \emph{if} a biological system exhibits GMC-like multiscale structure, then proxy agreement should correlate with proximity to coherent regimes. The following applications are exploratory and should be understood as demonstrations of the conceptual framework, not rigorous tests of the GMC theorem.
+
 \subsection{Neural Dynamics}
 
 Neural systems exhibit multiscale structure: from ion channels to synapses to microcircuits to brain regions. The ``criticality hypothesis'' suggests that healthy brain dynamics operate near a phase transition \citep{beggs2003, shew2013}.
 
-Dimension matching provides a testable prediction:
+Dimension matching suggests a testable prediction:
 \begin{itemize}
-    \item In healthy/awake states, correlation-based and spectral-based complexity measures should agree
-    \item Near transitions (seizure, anesthesia, sleep), the dimensions should decouple
-    \item The direction of decoupling indicates which scales are ``winning''
+    \item In healthy/awake states, geometric and spectral complexity proxies should show better agreement
+    \item Near pathological transitions (seizure, anesthesia), the proxies may decouple
+    \item The pattern of decoupling may indicate which scales dominate
 \end{itemize}
 
-Figure~\ref{fig:neural} demonstrates this prediction using synthetic EEG data calibrated to different brain states. The key finding: dimension matching (low error between geometric and spectral complexity) is highest in the awake state and degrades significantly during seizure, consistent with the hypothesis that pathological hypersynchrony disrupts the martingale balance across neural scales.
+Figure~\ref{fig:neural} demonstrates this prediction using synthetic EEG data calibrated to different brain states. The key finding: proxy agreement (low error between participation ratio and spectral entropy) is highest in the awake state and degrades significantly during seizure, consistent with the hypothesis that pathological hypersynchrony disrupts the cross-scale balance.
 
 \begin{figure}[H]
 \centering
 \includegraphics[width=\textwidth]{figures/fig7_neural_analysis.png}
-\caption{Dimension matching in simulated neural dynamics across brain states. (A) Example EEG traces showing characteristic patterns: awake (rich, variable), sleep (slower, more coherent), seizure (hypersynchronous), anesthesia (suppressed). (B) Geometric complexity (participation ratio) vs.\ spectral complexity, showing that awake dynamics cluster in the high-complexity region while pathological states show reduced dimensionality. (C) Match error (relative difference between complexity measures) is lowest for awake states and highest for seizure, consistent with the prediction that coherent dynamics maintain dimension matching. (D) Summary showing that seizure and anesthesia exhibit significantly worse dimension matching than awake states ($p < 0.001$, Mann-Whitney U test).}
+\caption{Complexity proxy agreement in simulated neural dynamics across brain states. (A) Example EEG traces showing characteristic patterns: awake (rich, variable), sleep (slower, more coherent), seizure (hypersynchronous), anesthesia (suppressed). (B) Geometric complexity proxy (participation ratio) vs.\ spectral complexity proxy, showing that awake dynamics cluster in the high-complexity region while pathological states show reduced dimensionality. (C) Match error (relative difference between complexity proxies) is lowest for awake states and highest for seizure, consistent with the prediction that coherent dynamics maintain better proxy agreement. (D) Summary showing that seizure and anesthesia exhibit significantly worse proxy agreement than awake states ($p < 0.001$, Mann-Whitney U test). Note: these are proxy measures, not true GMC dimensions.}
 \label{fig:neural}
 \end{figure}
 
@@ -415,11 +425,11 @@ For engineered multi-agent systems (swarms, distributed computing, economic netw
 We do not claim that GMC is the unique or correct model for biological or physical systems. Rather, we argue:
 \begin{enumerate}
     \item Dimension matching is a \emph{generic} phenomenon for multiscale systems with martingale-like balance
-    \item Its breakdown is a \emph{universal} signature of approaching criticality
-    \item The framework provides \emph{operational} metrics: compute $D_C$ and $D_H$ from data, compare
+    \item Its breakdown signals approaching criticality
+    \item The framework provides \emph{operational} metrics: estimate geometric and spectral complexity from data and compare
 \end{enumerate}
 
-The specific formula $D_C = D_H$ holds exactly for GMC. For other systems, we expect approximate matching in coherent regimes and systematic deviation near transitions.
+The specific formula $D_C = D_F$ holds exactly for GMC. For other systems, we expect approximate matching in coherent regimes and systematic deviation near transitions.
 
 \subsection{Relation to Existing Frameworks}
 

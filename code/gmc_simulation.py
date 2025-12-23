@@ -2,18 +2,52 @@
 Gaussian Multiplicative Chaos (GMC) Simulation
 
 Simulates GMC measures on the circle for various values of gamma.
-Demonstrates the subcritical, critical, and supercritical regimes.
+Demonstrates the subcritical regime (γ < √2) where dimension matching holds.
 
 The GMC measure is constructed as:
     μ_γ = exp(γX - γ²/2 * E[X²]) dx
 
 where X is a log-correlated Gaussian field.
+
+Reference:
+- Garban & Vargas (2023), arXiv:2311.04027
+- Lin, Qiu & Tan (2024), arXiv:2411.13923
 """
 
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.fft import fft, ifft
 from typing import Tuple, Optional
+
+# Critical value
+GAMMA_CRITICAL = np.sqrt(2)
+
+
+def theory_dimension(gamma: float) -> float:
+    """
+    Theoretical dimension D*(γ) for GMC (Lin-Qiu-Tan 2024).
+
+    D*(γ) = 1 - γ²           if 0 < γ < 1/√2
+          = (√2 - γ)²        if 1/√2 ≤ γ < √2
+
+    Parameters
+    ----------
+    gamma : float
+        GMC parameter (subcritical: 0 < γ < √2)
+
+    Returns
+    -------
+    D : float
+        Theoretical dimension
+    """
+    gamma_transition = 1.0 / np.sqrt(2)
+
+    if gamma < gamma_transition:
+        return 1.0 - gamma**2
+    elif gamma < GAMMA_CRITICAL:
+        return (np.sqrt(2) - gamma)**2
+    else:
+        return 0.0
 
 
 def generate_log_correlated_field(
@@ -79,7 +113,7 @@ def construct_gmc_measure(
     X : ndarray
         Log-correlated Gaussian field
     gamma : float
-        GMC parameter (subcritical: γ < 2, critical: γ = 2)
+        GMC parameter (subcritical: γ < √2 ≈ 1.41)
     normalize : bool
         Whether to normalize to a probability measure
 
@@ -166,14 +200,15 @@ def estimate_correlation_dimension(
     return D_C, r_values, C_values
 
 
-def estimate_spectral_dimension(
+def estimate_fourier_dimension(
     mu: np.ndarray,
     max_k: int = 100
 ) -> Tuple[float, np.ndarray, np.ndarray]:
     """
-    Estimate spectral/harmonic dimension from GMC measure.
+    Estimate Fourier dimension from GMC measure.
 
-    Computes power spectrum of the measure and fits decay exponent.
+    The Fourier dimension D_F is defined by |μ̂(n)| = O(|n|^{-D_F/2}).
+    Computes Fourier coefficients and fits decay exponent.
 
     Parameters
     ----------
@@ -184,41 +219,39 @@ def estimate_spectral_dimension(
 
     Returns
     -------
-    D_H : float
-        Estimated harmonic dimension (from spectral decay)
+    D_F : float
+        Estimated Fourier dimension
     k_values : ndarray
         Mode numbers
-    power : ndarray
-        Power at each mode
+    coeff_magnitudes : ndarray
+        |μ̂(k)| at each mode
     """
     # Compute Fourier transform
     mu_hat = fft(mu)
     n = len(mu)
 
-    # Power spectrum
-    power = np.abs(mu_hat)**2
+    # Fourier coefficient magnitudes
+    coeff_mag = np.abs(mu_hat)
 
     # Use modes 1 to max_k
     k_values = np.arange(1, min(max_k, n//2))
-    power_k = power[k_values]
+    coeff_k = coeff_mag[k_values]
 
-    # Fit decay: power ~ k^(-alpha)
-    # D_H related to alpha
-    valid = power_k > 0
+    # Fit decay: |μ̂(k)| ~ k^(-D_F/2)
+    valid = coeff_k > 0
     if np.sum(valid) < 5:
-        return np.nan, k_values, power_k
+        return np.nan, k_values, coeff_k
 
     log_k = np.log(k_values[valid])
-    log_p = np.log(power_k[valid])
+    log_c = np.log(coeff_k[valid])
 
-    coeffs = np.polyfit(log_k, log_p, 1)
-    alpha = -coeffs[0]
+    coeffs = np.polyfit(log_k, log_c, 1)
+    decay_exp = -coeffs[0]
 
-    # Harmonic dimension relates to spectral decay
-    # For GMC, D_H = (alpha - 1) / 2 approximately
-    D_H = alpha / 2
+    # Fourier dimension from decay: |μ̂(k)| ~ k^(-D_F/2)
+    D_F = 2 * decay_exp
 
-    return D_H, k_values, power_k
+    return D_F, k_values, coeff_k
 
 
 def simulate_gmc_ensemble(
@@ -233,7 +266,7 @@ def simulate_gmc_ensemble(
     Parameters
     ----------
     gamma_values : ndarray
-        GMC parameters to test
+        GMC parameters to test (should be < √2)
     n_realizations : int
         Number of independent realizations per gamma
     n_points : int
@@ -244,18 +277,19 @@ def simulate_gmc_ensemble(
     Returns
     -------
     results : dict
-        Dictionary with gamma values and dimension estimates
+        Dictionary with gamma values, dimension estimates, and theory values
     """
     theta = np.linspace(0, 2*np.pi, n_points, endpoint=False)
 
     D_C_all = []
-    D_H_all = []
+    D_F_all = []
     D_C_std = []
-    D_H_std = []
+    D_F_std = []
+    D_theory = []
 
     for gamma in gamma_values:
         D_C_samples = []
-        D_H_samples = []
+        D_F_samples = []
 
         for i in range(n_realizations):
             # Generate field and measure
@@ -264,27 +298,30 @@ def simulate_gmc_ensemble(
 
             # Estimate dimensions
             D_C, _, _ = estimate_correlation_dimension(mu, theta)
-            D_H, _, _ = estimate_spectral_dimension(mu)
+            D_F, _, _ = estimate_fourier_dimension(mu)
 
             if not np.isnan(D_C):
                 D_C_samples.append(D_C)
-            if not np.isnan(D_H):
-                D_H_samples.append(D_H)
+            if not np.isnan(D_F):
+                D_F_samples.append(D_F)
 
         D_C_all.append(np.mean(D_C_samples) if D_C_samples else np.nan)
-        D_H_all.append(np.mean(D_H_samples) if D_H_samples else np.nan)
+        D_F_all.append(np.mean(D_F_samples) if D_F_samples else np.nan)
         D_C_std.append(np.std(D_C_samples) if len(D_C_samples) > 1 else 0)
-        D_H_std.append(np.std(D_H_samples) if len(D_H_samples) > 1 else 0)
+        D_F_std.append(np.std(D_F_samples) if len(D_F_samples) > 1 else 0)
+        D_theory.append(theory_dimension(gamma))
 
         print(f"γ = {gamma:.2f}: D_C = {D_C_all[-1]:.3f} ± {D_C_std[-1]:.3f}, "
-              f"D_H = {D_H_all[-1]:.3f} ± {D_H_std[-1]:.3f}")
+              f"D_F = {D_F_all[-1]:.3f} ± {D_F_std[-1]:.3f}, "
+              f"D* = {D_theory[-1]:.3f}")
 
     return {
         'gamma': gamma_values,
         'D_C': np.array(D_C_all),
-        'D_H': np.array(D_H_all),
+        'D_F': np.array(D_F_all),
         'D_C_std': np.array(D_C_std),
-        'D_H_std': np.array(D_H_std)
+        'D_F_std': np.array(D_F_std),
+        'D_theory': np.array(D_theory)
     }
 
 
@@ -292,12 +329,14 @@ if __name__ == "__main__":
     # Quick demo
     print("GMC Simulation Demo")
     print("=" * 50)
+    print(f"Critical γ = √2 ≈ {GAMMA_CRITICAL:.4f}")
+    print()
 
     n_points = 2048
     theta = np.linspace(0, 2*np.pi, n_points, endpoint=False)
 
-    # Generate for different gamma values
-    gammas = [0.5, 1.0, 1.5, 1.8]
+    # Generate for subcritical gamma values only
+    gammas = [0.3, 0.6, 0.9, 1.2]
 
     fig, axes = plt.subplots(2, 2, figsize=(12, 10))
 
@@ -307,7 +346,7 @@ if __name__ == "__main__":
 
         ax.plot(theta, mu, 'b-', linewidth=0.5, alpha=0.7)
         ax.fill_between(theta, 0, mu, alpha=0.3)
-        ax.set_title(f'GMC measure, γ = {gamma}')
+        ax.set_title(f'GMC measure, γ = {gamma} (D* = {theory_dimension(gamma):.3f})')
         ax.set_xlabel('θ')
         ax.set_ylabel('μ_γ(θ)')
         ax.set_xlim(0, 2*np.pi)
@@ -316,10 +355,11 @@ if __name__ == "__main__":
     plt.savefig('../figures/gmc_measures.png', dpi=150, bbox_inches='tight')
     plt.show()
 
-    print("\nDimension estimates:")
+    print("\nDimension estimates vs theory:")
     X = generate_log_correlated_field(n_points, seed=42)
     for gamma in gammas:
         mu = construct_gmc_measure(X, gamma)
         D_C, _, _ = estimate_correlation_dimension(mu, theta)
-        D_H, _, _ = estimate_spectral_dimension(mu)
-        print(f"γ = {gamma}: D_C = {D_C:.3f}, D_H = {D_H:.3f}")
+        D_F, _, _ = estimate_fourier_dimension(mu)
+        D_star = theory_dimension(gamma)
+        print(f"γ = {gamma}: D_C = {D_C:.3f}, D_F = {D_F:.3f}, D* = {D_star:.3f}")

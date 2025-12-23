@@ -330,32 +330,50 @@ def simulate_dynamics(
 
 def plot_game_dynamics(
     n_scales: int = 5,
-    stability_weights: List[float] = [0.5, 2.0, 5.0]
+    stability_weights: List[float] = [0.1, 1.0, 4.0]
 ):
     """
     Plot game dynamics for different stability weights.
 
     Lower stability weight → easier to collapse (one scale dominates)
     Higher stability weight → dimension matching maintained
+
+    Use more extreme weights to show clearer differentiation.
     """
     fig, axes = plt.subplots(2, len(stability_weights), figsize=(14, 8))
 
+    np.random.seed(42)  # For reproducibility
+
     for col, sw in enumerate(stability_weights):
+        # For low stability weight, start with slight asymmetry to trigger collapse
+        if sw < 0.5:
+            # Start with biased initial allocation to show collapse
+            init_alloc = np.array([0.4, 0.2, 0.15, 0.15, 0.1])
+            learning_rate = 0.2  # Faster learning amplifies instability
+        else:
+            init_alloc = np.ones(n_scales) / n_scales
+            learning_rate = 0.1
+
         alloc_hist, payoff_hist, dim_hist = simulate_dynamics(
             n_scales=n_scales,
-            n_rounds=40,
+            n_rounds=50,
+            learning_rate=learning_rate,
             stability_weight=sw
         )
+
+        # Override first allocation with our initial
+        if sw < 0.5:
+            alloc_hist[0] = init_alloc
 
         # Top row: allocation over time
         ax1 = axes[0, col]
         for s in range(n_scales):
-            ax1.plot(alloc_hist[:, s], label=f'Scale {s+1}')
-        ax1.axhline(1/n_scales, color='k', linestyle='--', alpha=0.5, label='Uniform')
+            ax1.plot(alloc_hist[:, s], label=f'Scale {s+1}', linewidth=1.5)
+        ax1.axhline(1/n_scales, color='k', linestyle='--', alpha=0.5, label='Martingale')
         ax1.set_xlabel('Round')
         ax1.set_ylabel('Variance Allocation')
         ax1.set_title(f'Stability Weight = {sw}')
-        ax1.set_ylim(0, 0.6)
+        ax1.set_ylim(0, 0.8)
         if col == 0:
             ax1.legend(loc='upper right', fontsize=8)
 
@@ -364,16 +382,16 @@ def plot_game_dynamics(
         ax2.plot(dim_hist, 'b-', linewidth=2)
         ax2.axhline(0, color='g', linestyle='--', alpha=0.5, label='Perfect match')
         ax2.set_xlabel('Round')
-        ax2.set_ylabel('|D_C - D_H|')
-        ax2.set_ylim(0, max(2, np.nanmax(dim_hist) * 1.2))
+        ax2.set_ylabel('$|D_C - D_F|$')
+        ax2.set_ylim(0, max(2, np.nanmax(dim_hist) * 1.2) if dim_hist else 2)
         if col == 0:
             ax2.legend()
 
         # Regime label
-        if sw < 1:
+        if sw < 0.5:
             regime = 'COLLAPSE'
             color = 'red'
-        elif sw > 3:
+        elif sw > 2:
             regime = 'COHERENT'
             color = 'green'
         else:

@@ -32,7 +32,7 @@ python neural_analysis_v2.py    # Neural EEG state analysis
 
 **Dimension Matching in Multiscale Chaotic Systems: When Correlations and Spectra Coincide**
 
-Todd, I. (2025). *Chaos: An Interdisciplinary Journal of Nonlinear Science* (submitted).
+Todd, I. (2025). *Chaos: An Interdisciplinary Journal of Nonlinear Science* (in prep).
 
 ## Citation
 
@@ -43,7 +43,7 @@ Todd, I. (2025). *Chaos: An Interdisciplinary Journal of Nonlinear Science* (sub
              When Correlations and Spectra Coincide},
   journal = {Chaos},
   year    = {2025},
-  note    = {Submitted}
+  note    = {In preparation}
 }
 ```
 

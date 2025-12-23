@@ -1,0 +1,567 @@
+\documentclass[12pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{geometry}
+\geometry{margin=1in}
+\usepackage{setspace}
+\usepackage{hyperref}
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{booktabs}
+\usepackage[round]{natbib}
+\bibliographystyle{plainnat}
+\onehalfspacing
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{hypothesis}[theorem]{Hypothesis}
+
+\title{The Geometry of Rhythms:\\
+Dimension Matching as a Spectral-Geometric Constraint on Living Matter}
+
+\author{Ian Todd\\
+Sydney Medical School, University of Sydney\\
+Sydney, NSW 2006, Australia\\
+\texttt{itod2305@uni.sydney.edu.au}}
+
+\date{December 2025}
+
+\begin{document}
+
+\maketitle
+
+\begin{abstract}
+Living systems maintain complex \textbf{temporal dynamics}---metabolic, neural, and cellular oscillations---to sustain coherent \textbf{spatial structure}---organelles, cells, tissues. We propose that this coupling represents a fundamental organizing principle: \textbf{cross-scale coherence}, measurable as agreement among independent complexity estimators. \emph{The dimensions you oscillate in are the dimensions you exist in.}
+
+Dimensionality cannot be measured directly---it requires asymptotic limits unattainable in finite data. But we can measure \emph{consistency}: do geometric estimators (state-space occupancy) agree with spectral estimators (oscillatory richness)? Drawing on Takens' embedding theorem, Gaussian multiplicative chaos, and constraint closure theory, we argue that such agreement characterizes viable living systems, while divergence signals pathology or death.
+
+We review evidence consistent with this framework: loss of heart rate variability predicts cardiac mortality; neural complexity collapses in seizure and coma; cancer represents cellular defection from tissue-level coordination. We interpret this game-theoretically: biological scales are players whose fitness is coupled to system survival, enforcing cooperation. We define \emph{match error} $\varepsilon$ comparing estimator families, predicting that $\varepsilon$ is minimized in healthy states and rises toward failure.
+
+This framework distinguishes biological from artificial intelligence: current AI exhibits high geometric complexity (parameters, representations) but typically lacks self-maintained, viability-coupled multiscale rhythms---its temporal structure is largely externally clocked and not homeostatically stabilized. Life computes at every scale simultaneously, with bidirectional cross-scale coupling; mainstream AI is deep but vertically flat. We propose that the ``missing ingredient'' for artificial general intelligence is not more parameters but intrinsic temporal dynamics: oscillations that construct and maintain geometry.
+
+We offer specific experimental pipelines using existing clinical data. Our aim is a mathematically grounded, empirically testable framework for formalizing what distinguishes living matter from dead matter and from engineered computation.
+
+\textbf{Keywords:} cross-scale coherence; dimension matching; estimator agreement; constraint closure; Takens embedding; biological complexity; artificial intelligence
+\end{abstract}
+
+%==============================================================================
+\section{Introduction: The Question of Life}
+\label{sec:intro}
+%==============================================================================
+
+What is the difference between a living cell and a dead one? Both contain the same molecules, the same organelles, the same physical matter. Yet one maintains itself, responds to its environment, and reproduces; the other decays toward equilibrium. The transition between these states---death---happens in finite time, often rapidly. What changes?
+
+Schr\"{o}dinger's \emph{What is Life?} \citep{schrodinger1944} framed this question in terms of thermodynamics and information: living systems maintain order by feeding on ``negative entropy'' from their environment. This insight launched decades of work on non-equilibrium thermodynamics \citep{prigogine1977}, dissipative structures, and more recently, statistical physics of self-replication \citep{england2013}. Yet the thermodynamic criterion---that living systems are far from equilibrium---is necessary but not sufficient. Flames, hurricanes, and convection cells are far from equilibrium without being alive.
+
+\textbf{Dormancy proves that thermodynamics is insufficient.} Tardigrades in cryptobiosis, bacterial spores, frozen embryos, and seeds are not thermodynamically active---no metabolism, no energy flow, no entropy export \citep{keilin1959, crowe2002}. By Schr\"{o}dinger's criterion or Prigogine's dissipative structures, they should be dead. Yet they resume full function upon reactivation. What persists in dormancy is not dynamics but \emph{structure}: geometric relationships, constraint architecture, the shape of the attractor. This observation motivates our proposal: life is not defined by ongoing thermodynamic activity, but by \emph{preserved geometric coherence that can support dynamics}.
+
+Crucially, more complex organisms are harder to put into viable dormancy---mammals cannot be frozen and revived like tardigrades. This makes sense in the geometric framework: higher-dimensional systems have more degrees of freedom whose geometric relationships must be preserved. A bacterium's relatively low-dimensional attractor can be ``frozen'' without damage; a mammal's high-dimensional coherence across molecular, cellular, tissue, and organ scales is far harder to preserve. Dormancy difficulty scales with dimensionality.
+
+A more precise answer must involve \emph{organization across scales}. Living systems are not merely far from equilibrium---they maintain \emph{coordinated structure at multiple scales simultaneously}. A cell coordinates molecular reactions, organelle function, membrane dynamics, and responses to tissue-level signals. This multiscale coordination persists despite constant molecular turnover and environmental fluctuation. The autopoietic tradition \citep{maturana1980, varela1991, dipaolo2005} captures this intuition: living systems are self-producing organizations that maintain their identity through continuous material flux.
+
+The challenge is to make ``multiscale coordination'' mathematically precise. When does it hold? When does it break? What are its signatures?
+
+This review proposes a framework based on recent developments in probability theory. We argue that \emph{dimension matching}---the coincidence of geometric and spectral complexity measures---provides a candidate signature for the coordination that distinguishes life from death. We review the mathematical foundations (Section~\ref{sec:math}), survey evidence for multiscale coherence in living systems and its breakdown in death and pathology (Section~\ref{sec:boundary}), connect dimension matching to biological intelligence broadly construed (Section~\ref{sec:intelligence}), develop a game-theoretic interpretation grounded in evolutionary dynamics (Section~\ref{sec:game}), relate our framework to existing theories (Section~\ref{sec:relation}), and assess what would be required to test these ideas empirically (Section~\ref{sec:testing}).
+
+\textbf{Operationalizing the hypothesis.} In biological systems, we cannot directly compute the correlation dimension $D_C$ or Fourier dimension $D_F$---these require asymptotic limits unattainable in finite data. Instead, we propose measuring two families of \emph{proxy quantities}: a \textbf{geometric proxy} $D_{\text{geom}}$ (e.g., participation ratio of covariance eigenspectrum) that tracks state-space occupancy, and a \textbf{spectral proxy} $D_{\text{spec}}$ (e.g., spectral entropy of power spectrum) that tracks oscillatory richness. Our central empirical prediction is that healthy biological systems minimize \emph{match error}:
+\begin{equation}
+    \varepsilon = \frac{|D_{\text{geom}} - D_{\text{spec}}|}{(D_{\text{geom}} + D_{\text{spec}})/2 + \delta}
+    \label{eq:match_error}
+\end{equation}
+where $\delta > 0$ is a small regularization constant (we use $\delta = 0.01$) to ensure stability when both proxies approach zero. This yields two distinct failure modes: \textbf{pathology} exhibits elevated $\varepsilon$ (high error, proxies disagree); \textbf{death} exhibits low $\varepsilon$ but trivial magnitude (both proxies collapse toward zero---they ``match'' only because nothing remains). The distinction matters: pathology is \emph{mismatch}; death is \emph{collapse}. This quantity---not the GMC theorem itself---is what we propose to measure in biological experiments. The theorem provides the template; the match error provides the test.
+
+\textbf{Terminology note:} We use ``dimension matching'' for the exact GMC identity ($D_C = D_F$); in biological contexts, we test \textbf{estimator agreement} via proxy matching. The distinction matters: the theorem is proven for GMC; the biological hypothesis is that living systems exhibit an analogous pattern.
+
+%==============================================================================
+\section{The Mathematics of Cross-Scale Coherence}
+\label{sec:math}
+%==============================================================================
+
+We do not rely on a single theorem, but on a convergence of mathematical insights suggesting that coherent systems exhibit \textbf{estimator agreement}: independent ways of measuring complexity yield consistent answers. When this agreement breaks, so does the system.
+
+\subsection{Time Constructs Space: The Core Principle}
+
+In dynamical systems, an attractor does not exist \emph{a priori}; it is carved out over time by the system's trajectories. A limit cycle (single periodic oscillation) carves out a 1D circle in state space. A quasiperiodic oscillation with two incommensurate frequencies carves out a 2D torus. To occupy a high-dimensional functional space---necessary for the behavioral complexity of life---a system must possess high-dimensional driving dynamics.
+
+\emph{You cannot exist in more dimensions than you oscillate in.}
+
+This principle appears in multiple mathematical frameworks:
+
+\subsection{Takens' Embedding Theorem (Deterministic Systems)}
+
+Takens \citep{takens1981} proved that for a dynamical system with attractor dimension $D$, the geometry of the attractor can be faithfully reconstructed from the time series of a single observable, provided the embedding dimension exceeds $2D$. The temporal dynamics \emph{encode} the spatial structure.
+
+\textbf{Implication:} If you measure a time series from a living system (heart rate, neural activity, calcium oscillations), the complexity of that time series places a \emph{lower bound} on the dimensionality of the underlying attractor. Conversely, if the attractor is high-dimensional, the time series must be correspondingly rich. Time and space are coupled.
+
+\textbf{Pathology as Takens breakdown:} When cross-scale coordination fails, the time series no longer faithfully encodes the attractor. The ``reconstruction'' becomes unreliable---different observables yield inconsistent dimension estimates. This is precisely what we propose to measure.
+
+\subsection{Gaussian Multiplicative Chaos (Stochastic Systems)}
+
+For stochastic systems, Gaussian multiplicative chaos (GMC) provides a rigorous template. Kahane \citep{kahane1985} introduced GMC as a framework for random fractal measures; Rhodes and Vargas \citep{rhodes2014} review its applications to turbulence, quantum gravity, and disordered systems.
+
+The key result, conjectured by Garban and Vargas \citep{garban2023} and proved by Lin, Qiu, and Tan \citep{lin2024}, is \textbf{dimension matching}: for GMC measures in the subcritical regime ($\gamma < \sqrt{2}$), the correlation dimension $D_C$ (geometric clustering) equals the Fourier dimension $D_F$ (spectral decay):
+\begin{equation}
+    D_C(\gamma) = D_F(\gamma) = D^*(\gamma)
+\end{equation}
+where:
+\begin{equation}
+    D^*(\gamma) = \begin{cases}
+        1 - \gamma^2 & \text{if } 0 < \gamma < 1/\sqrt{2} \\
+        (\sqrt{2} - \gamma)^2 & \text{if } 1/\sqrt{2} \leq \gamma < \sqrt{2}
+    \end{cases}
+\end{equation}
+
+At the critical point $\gamma = \sqrt{2}$, dimension matching breaks and the measure collapses. Figure~\ref{fig:gmc} illustrates this progression.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.9\textwidth]{figures/fig1_gmc_measures.png}
+\caption{\textbf{Dimension matching in GMC.} As the roughness parameter $\gamma$ approaches the critical value $\sqrt{2}$, the measure becomes increasingly concentrated. In the subcritical regime, geometric and spectral dimensions match; at criticality, the system collapses.}
+\label{fig:gmc}
+\end{figure}
+
+\textbf{Why GMC matters for biology:} GMC proves that spectral-geometric coupling is (a) mathematically possible, (b) enforced by cross-scale consistency (martingale balance), and (c) destroyed by a sharp phase transition. We do not claim biology literally instantiates GMC. We use it as a \emph{template}: proof that such coupling can exist and that it is fragile.
+
+\textbf{Why biology isn't pure GMC:} GMC describes isotropic random measures with no preferred direction or structural constraints---randomness at every scale, balanced only by the martingale property. Biological systems are fundamentally different: they have \textbf{anisotropy} (directional organization, front-back, inside-outside), \textbf{specific structural constraints} (membranes, cytoskeletons, genetic circuits), and \textbf{active regulation} (homeostatic control loops). Dimension matching in biology is likely an \emph{attractor} maintained by control systems, whereas in GMC it is a statistical property of the field construction. This makes the biological case both harder to prove and more interesting: living systems don't passively exhibit dimension matching---they actively work to maintain it.
+
+\subsection{A Toolkit of Dimensionality Estimators}
+
+The biological hypothesis does not depend on any single mathematical framework. Rather, we propose that \textbf{coherent living systems show agreement across multiple independent complexity estimators}, while pathology manifests as their divergence.
+
+\textbf{Geometric estimators} (state-space occupancy):
+\begin{itemize}
+    \item Correlation dimension $D_C$ \citep{grassberger1983}
+    \item Participation ratio of covariance eigenspectrum
+    \item Intrinsic dimension via nearest-neighbor methods \citep{levina2004}
+    \item Kaplan-Yorke dimension from Lyapunov spectrum
+\end{itemize}
+
+\textbf{Spectral estimators} (oscillatory richness):
+\begin{itemize}
+    \item Spectral entropy of power spectrum
+    \item $1/f$ slope / spectral exponent
+    \item Multiscale entropy across coarse-graining levels \citep{costa2002}
+    \item Wavelet scale occupancy
+\end{itemize}
+
+\textbf{Cross-scale coupling estimators}:
+\begin{itemize}
+    \item Phase-amplitude coupling across frequency bands
+    \item Transfer entropy between scales
+    \item Cross-frequency coherence
+\end{itemize}
+
+\textbf{The generalized hypothesis:} In viable biological systems, these estimators \emph{co-vary and remain mutually consistent}. In pathology, they diverge. In engineered systems (including current AI), some estimators may be high while others are effectively zero.
+
+\textbf{The measurement problem:} Crucially, \emph{dimensionality cannot be measured directly}. True dimension estimation requires asymptotic limits---$\varepsilon \to 0$ for correlation dimension, $n \to \infty$ for spectral measures---that are unattainable with finite biological data. Every ``dimension'' we compute is an estimate from a proxy. This is not a weakness of our framework; it is a fundamental feature of the phenomenon. What we can measure is \emph{consistency across proxies}: do different estimators, computed from the same data, agree? This agreement---not any single dimension value---is the empirical signature we propose.
+
+\subsection{Constraint Closure: Why Life Isn't ``Information''}
+
+A data center has massive Shannon entropy---trillions of bits---but it has no \emph{intrinsic} organization. You can partition it arbitrarily without destroying its function. A living cell has vastly more microstate complexity, but more importantly, it exhibits \textbf{constraint closure}: the cell's organization constrains its dynamics, and its dynamics maintain its organization \citep{kauffman2000, moreno2015}.
+
+Rosen \citep{rosen1991} formalized this as ``closure to efficient causation'': living systems build the machinery that builds themselves. Kauffman \citep{kauffman2000} emphasized that work is done to construct constraints, which channel energy to do more work. This is not ``information processing'' in the computational sense---it is \emph{constraint-maintaining matter}.
+
+\textbf{Information versus knowing.} A useful distinction: \emph{information} is what can be named, stored, transmitted---Shannon entropy, bits, facts. \emph{Knowing} is the geometry that relates facts to each other and to action---the dimensionality of the constrained manifold within which the system operates. A database has information; a living cell has knowing. The name of a thing is information; what the thing \emph{is}---how it functions, how it persists, how it responds---is geometry. Current AI has vast information (parameters, training data) but minimal self-maintained geometry. Crucially, large language models \emph{simulate} geometry using information---statistical patterns approximate relational structure---but do not \emph{instantiate} it: there is no underlying constrained manifold whose dynamics are being maintained. The simulation is impressive but substrate-free. Life has both information and geometry; AI has information that mimics geometry.
+
+\textbf{Dimension matching as the signature of constraint closure:} When geometric and spectral estimators agree, it indicates that the system's structure (geometry) and dynamics (spectrum) are mutually constraining. The oscillations maintain the attractor; the attractor shapes the oscillations. This circular causation is what constraint closure \emph{looks like} when measured.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.85\textwidth]{figures/fig5_info_vs_dimension.png}
+\caption{\textbf{Information $\neq$ Dimension: Two axes of complexity.} Shannon entropy (information) and effective dimensionality are distinct. A data center has high information but low intrinsic dimensionality (arbitrary partitioning). A living cell occupies a different region: high-dimensional dynamics constrained by organization. Life requires both axes; current AI has high information (parameters) but lacks self-maintained dimensional structure.}
+\label{fig:info_dimension}
+\end{figure}
+
+\subsection{The Biological Conjecture}
+
+We propose that living systems maintain cross-scale coherence---measurable as estimator agreement---through active, energy-consuming processes. This is not passive physics but \emph{maintained} coordination, enforced by the evolutionary pressure that systems which lose coherence die.
+
+\textbf{Health:} Multiple complexity estimators agree. The system occupies a coherent region of ``estimator space.''
+
+\textbf{Pathology:} Estimators diverge. Seizure collapses spectral diversity; cancer shows local geometric structure decoupled from tissue-level coordination; heart failure shows spectral simplification preceding geometric collapse.
+
+\textbf{Death:} Oscillations cease, constraints dissolve, estimators become undefined or trivial.
+
+\emph{Life is maintained estimator agreement. Death is their decoupling.}
+
+%==============================================================================
+\section{The Boundary Between Life and Death}
+\label{sec:boundary}
+%==============================================================================
+
+We now turn from mathematics to biology. Our thesis is that living systems maintain something like dimension matching---multiscale coherence enforced by cross-scale balance---and that death represents its breakdown. This section reviews evidence for this pattern across diverse biological contexts.
+
+\subsection{Loss of Physiological Complexity Precedes Death}
+
+A robust finding across clinical medicine is that \emph{loss of physiological complexity predicts mortality}. This was articulated influentially by Lipsitz and Goldberger \citep{lipsitz1992} and has been extensively documented since.
+
+\textbf{Heart rate variability (HRV).} Healthy hearts exhibit complex, fractal-like fluctuations in beat-to-beat intervals \citep{peng1995, ivanov1999}. This variability is not noise---it reflects the interplay of multiple regulatory scales: autonomic nervous system modulation, hormonal influences, circadian rhythms, respiratory coupling, and intrinsic cardiac dynamics \citep{goldberger2002}.
+
+Reduced HRV predicts cardiac mortality, even in apparently healthy individuals. The landmark Framingham study showed that decreased HRV independently predicts all-cause mortality \citep{tsuji1996}. Post-myocardial infarction, reduced HRV is among the strongest predictors of sudden cardiac death \citep{kleiger1987}. A comprehensive review by Huikuri and Stein confirms HRV's prognostic value across cardiac conditions \citep{huikuri2009}.
+
+The dying heart does not simply ``stop''---it loses its multiscale complexity. It becomes either rigidly periodic (loss of variability) or chaotically irregular (atrial fibrillation). Both represent departures from the balanced complexity of health.
+
+\textbf{Multiscale entropy.} Costa, Goldberger, and Peng \citep{costa2002, costa2005} developed multiscale entropy (MSE) analysis to quantify complexity across temporal scales. They showed that healthy physiological signals exhibit high entropy at multiple scales, while pathological signals show reduced complexity. Crucially, simple entropy measures can be misleading---random noise has high entropy but low MSE at coarse scales. What distinguishes healthy physiology is maintained complexity \emph{across} scales.
+
+\textbf{Aging.} The loss-of-complexity pattern extends to aging. Vaillancourt and Newell \citep{vaillancourt2002} reviewed evidence that complexity in motor control, postural stability, and cognitive function decreases with age. Manor et al. \citep{manor2010} showed that postural control complexity predicts falls in elderly individuals. Aging may be understood, in part, as gradual loss of cross-scale coordination.
+
+\subsection{Cancer: Defection from Tissue-Level Coordination}
+
+Cancer provides a different perspective on multiscale breakdown. A cancer cell is not dying---it is hyperproliferating. But it has \emph{defected} from the tissue-level coordination that defines multicellular life.
+
+Hanahan and Weinberg's influential ``Hallmarks of Cancer'' \citep{hanahan2000, hanahan2011} enumerate capabilities that cancer cells acquire: sustaining proliferative signaling, evading growth suppressors, resisting cell death, enabling replicative immortality, inducing angiogenesis, activating invasion. Each hallmark represents a breakdown of normal tissue coordination.
+
+The tissue organization field theory \citep{sonnenschein1999} emphasizes that cancer is fundamentally a tissue-level disease, not just a cellular one. Davies and Lineweaver \citep{davies2011} provocatively suggested that cancer represents reversion to an ancestral, unicellular mode of existence---``Metazoa 1.0''---where cells prioritize their own proliferation over organismal coordination.
+
+Levin \citep{levin2021cancer} frames cancer in terms of bioelectric signaling: cancer cells have become ``disconnected'' from the bioelectric networks that coordinate tissue-level pattern formation and repair. In game-theoretic terms, they have defected from the cooperative equilibrium.
+
+\subsection{What Dies When We Die?}
+
+These observations suggest a reframing. Death is not primarily about energy depletion or specific molecular failures---these are consequences. The primary event is \emph{loss of cross-scale coordination}.
+
+A living system maintains coherent dynamics across scales:
+\begin{itemize}
+    \item Molecular reactions couple to organelle function
+    \item Organelle function couples to cellular physiology
+    \item Cellular physiology couples to tissue organization
+    \item Tissue organization couples to organ and organism function
+\end{itemize}
+
+Death is the decoupling of these scales. Once coordination fails at any level, the cascade propagates. The question is whether ``coordination'' can be operationalized. We propose dimension matching as a candidate formalization.
+
+\textbf{Summary of pathological signatures.} Table~\ref{tab:pathologies} summarizes the patterns discussed above in terms of our proxy framework. In each case, we predict that match error $\varepsilon$ (Eq.~\ref{eq:match_error}) increases as pathology develops.
+
+\begin{table}[H]
+\centering
+\caption{Pathological signatures in the dimension matching framework. $D_{\text{geom}}$: geometric proxy (e.g., participation ratio). $D_{\text{spec}}$: spectral proxy (e.g., spectral entropy). Arrows indicate predicted changes relative to healthy baseline.}
+\label{tab:pathologies}
+\begin{tabular}{@{}lllll@{}}
+\toprule
+\textbf{System} & \textbf{Pathology} & \textbf{$D_{\text{geom}}$} & \textbf{$D_{\text{spec}}$} & \textbf{Decoupling signature} \\
+\midrule
+Heart & Reduced HRV & $\downarrow$ & $\downarrow$ & Both collapse; $\varepsilon$ rises if asymmetric \\
+Heart & Atrial fibrillation & Low/ambiguous & $\uparrow$ (noise-like) & $\varepsilon \uparrow$ via spectral-geometric decoupling \\
+Cell & Mitochondrial dysfunction & $\downarrow$ & $\downarrow$ & Metabolic oscillations fail \\
+Cell & Senescence & $\downarrow$ & $\downarrow$ & Gradual loss of cellular dynamics \\
+Tissue & Cancer & Variable & Variable & Local defection from tissue pattern \\
+Aging & General decline & $\downarrow$ & $\downarrow$ & Gradual loss of multiscale structure \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{Distinguishing structured complexity from noise.} A potential objection is that some pathologies (e.g., atrial fibrillation) appear ``more complex'' by simple entropy measures. This highlights why match error, not raw complexity, is the relevant quantity. Random noise has high spectral entropy but low geometric structure (the attractor is space-filling but trivial). Healthy physiology has high values of \emph{both} proxies, and crucially, they \emph{match}. Pathology manifests as either: (a) collapse of both (seizure, coma), (b) mismatch where one proxy diverges from the other (noise-like irregularity without geometric structure), or (c) local defection where subsystems decouple from the whole (cancer). The framework predicts that all three failure modes increase $\varepsilon$.
+
+%==============================================================================
+\section{Biological Intelligence as Cross-Scale Coordination}
+\label{sec:intelligence}
+%==============================================================================
+
+Before developing our framework further, we argue that biological intelligence is not a property that life ``has''---it is what life \emph{is}. Every scale of a living system exhibits cognition: molecules solve binding problems, organelles optimize energy production, cells navigate and decide, tissues regenerate and coordinate, organs integrate signals, organisms behave adaptively. Life is intelligent at every scale simultaneously.
+
+\subsection{The Scope of Biological Cognition}
+
+Recent years have seen growing recognition that cognition extends beyond nervous systems. Lyon \citep{lyon2015} argues for recognizing bacterial cognition---the capacity for sensing, integrating information, and responding adaptively. Shapiro \citep{shapiro2007} documents sophisticated decision-making in bacteria. Lyon et al. \citep{lyon2021} call for ``reframing cognition'' to include all biological systems.
+
+Levin \citep{levin2019, levin2022} develops the concept of ``scale-free cognition'': the idea that cognitive capacities (memory, learning, goal-directedness) appear at multiple scales, from molecular networks to cells to tissues to organisms to collectives. The boundaries of ``self'' are not fixed but emerge from bioelectric and biochemical communication networks.
+
+This perspective aligns with our framework: intelligence requires coordination across scales. A cell solving a chemotaxis problem integrates molecular sensing, cytoskeletal dynamics, and membrane remodeling. A tissue regenerating after injury coordinates cellular proliferation, migration, and differentiation. These are cognitive achievements requiring multiscale coherence.
+
+\subsection{Intelligence Requires Dimension Matching}
+
+We propose that biological intelligence, at any scale, requires something like dimension matching: the capacity to maintain coherent organization across observational scales.
+
+When dimension matching holds, coarse observations faithfully represent fine structure, different measurement modalities yield consistent complexity estimates, the system can integrate information across scales, and adaptive responses coordinate changes at multiple levels.
+
+When dimension matching fails, scales decouple, complexity measures diverge, integration fails, and intelligence degrades.
+
+\textbf{Biological versus artificial intelligence.} This framework suggests a fundamental distinction between biological and artificial intelligence. \textbf{Vertical coupling} means \emph{downward regulation} (coarse variables constrain fine dynamics) and \emph{upward closure} (fine dynamics stabilize coarse variables), forming feedback across scales. Current AI systems concentrate most computation within a narrow band of effective scales, with limited endogenous downward regulation---layers process information, but higher representations do not actively maintain lower-level dynamics. Biological systems compute at every scale simultaneously, and these computations are coordinated through dimension matching. A cell is not just a component of a tissue; it is itself an intelligent agent solving problems, and its solutions must cohere with tissue-level and organism-level cognition. This cross-scale coherence may explain why biological intelligence exhibits robustness, adaptivity, and generalization that artificial systems lack. The dimension matching framework predicts that $\varepsilon$ should be measurably lower in biological neural networks than in artificial ones---a testable claim.
+
+\textbf{Why coherence emerges from dimensionality.} In a sufficiently high-dimensional system with sufficient interaction, spectral-geometric synchrony emerges generically under broad coupling conditions. This is almost a statistical mechanical claim: when many coupled degrees of freedom interact, the geometric structure (how states cluster) and spectral structure (how dynamics distribute across frequencies) tend to align because they are both expressions of the same underlying coupling topology. Life does not \emph{create} dimension matching---it \emph{maintains the conditions} (high dimensionality, sufficient interaction, energy flow) under which this synchrony generically arises. Death is when those conditions degrade below the threshold where coherence can self-organize.
+
+\textbf{The evolutionary trajectory: metabolism enables dimensionality.} Prior work proposes that biological intelligence operates through high-dimensional dynamics that exceed external measurement capacity, achieving thermodynamic efficiency by paying energetic costs only at sparse behavioral outputs rather than at every computational step \citep{todd2025intelligence}. We extend this by proposing that the key constraint on biological complexity is metabolic: sustaining high-dimensional coherence requires continuous energy expenditure. The Cambrian explosion---often attributed to rising oxygen levels---can be reinterpreted as a metabolic threshold crossing: organisms suddenly had the energetic capacity to sustain the high-dimensional cross-scale coordination required for complex body plans. Similarly, the human brain consumes 20\% of metabolic budget for 2\% of body mass because it maintains extremely high-dimensional coherence across scales (molecular $\to$ synaptic $\to$ circuit $\to$ region $\to$ whole-brain). The brain is expensive not because it is ``computing'' but because it is sustaining the conditions for spectral-geometric synchrony at unprecedented dimensionality.
+
+\textbf{Prediction for artificial intelligence.} Current AI achieves high geometric complexity (trillions of parameters) but typically lacks self-maintained, viability-coupled spectral complexity---its temporal structure is largely externally clocked, not homeostatically stabilized or coupled to survival constraints. The dimension matching framework predicts that the ``missing ingredient'' for biological-grade intelligence is not more parameters ($D_{\text{geom}}$) but intrinsic temporal dynamics ($D_{\text{spec}}$) that cost energy to maintain. True artificial general intelligence may require neuromorphic architectures with genuine oscillatory dynamics, not just larger transformers. The metabolic expense is not a cost of intelligence---it \emph{is} the intelligence.
+
+\textbf{A convergent example from engineered systems.} A parallel insight has recently emerged in fault-tolerant quantum computation. There, computational power is no longer treated as an injected resource to be repeatedly purified, but as a structure that can be \emph{cultivated} by remaining within a sufficiently high-dimensional, constraint-protected code manifold. This does not imply that living systems are quantum; rather, it illustrates a general principle: when systems operate within rich constrained state spaces, rare but functional structures can be maintained endogenously rather than imposed externally. Living systems appear to operate in an analogous mode---maintaining coherence via multiscale oscillatory constraints rather than episodic injection.
+
+\textbf{Empirical prediction.} If intelligence requires cross-scale coordination, then match error $\varepsilon$ should correlate with cognitive performance and adaptive capacity. This generates testable predictions: (1) in neural systems, lower $\varepsilon$ should predict better task performance; (2) across species, organisms with more sophisticated problem-solving should maintain lower $\varepsilon$ under challenge; (3) interventions that improve cognitive function should reduce $\varepsilon$. These predictions could be tested first in simpler systems (bacterial chemotaxis, slime mold navigation) where both behavioral performance and physiological signals are accessible.
+
+%==============================================================================
+\section{A Game-Theoretic Interpretation}
+\label{sec:game}
+%==============================================================================
+
+We now develop a game-theoretic interpretation of dimension matching that grounds the mathematical phenomenon in evolutionary dynamics.
+
+\subsection{Scales as Players}
+
+Consider a multiscale biological system as a coordination game among scales \citep{osborne1994, hofbauer1998}. Each scale (molecular, organelle, cellular, tissue) can be viewed as a ``player'' that allocates resources, expresses dynamics, and interacts with adjacent scales.
+
+This framing is not merely metaphorical. Evolutionary game theory \citep{hofbauer1998, nowak2006} established that game-theoretic structures can describe systems without conscious players. What matters is the payoff structure and the dynamics of strategy change, not whether players ``intend'' their strategies.
+
+\subsection{Payoff Structure}
+
+The payoff for each scale depends on:
+\begin{itemize}
+    \item \textbf{Local gain}: Expressing more activity, capturing more resources
+    \item \textbf{Global stability}: The system surviving long enough for gains to matter
+\end{itemize}
+
+This is a classic cooperation problem. A scale that ``defects''---grabbing more than its share---may gain locally but risks crashing the system.
+
+\textbf{A toy payoff function.} Let $a_i$ denote the ``allocation'' (activity level, resource share) of scale $i$, with $\sum_i a_i = 1$. A minimal payoff function capturing this tradeoff is:
+\begin{equation}
+    \pi_i(a) = \underbrace{a_i}_{\text{local gain}} - \underbrace{\lambda \cdot \text{Var}(a)}_{\text{instability penalty}}
+    \label{eq:payoff}
+\end{equation}
+where $\text{Var}(a) = \sum_i (a_i - 1/n)^2$ measures deviation from uniform allocation, and $\lambda > 0$ is the ``survival coupling'' parameter. When $\lambda$ is large, the instability penalty dominates, and uniform allocation ($a_i = 1/n$ for all $i$) is the unique Nash equilibrium. When $\lambda$ is small, local gains dominate, and a scale can profitably ``defect'' by grabbing more than its share. The critical threshold $\lambda_c$ separates cooperative from collapse regimes---analogous to $\gamma_c = \sqrt{2}$ in GMC.
+
+\textbf{Note on biological scaling:} Because our scales represent logarithmic frequency bands (octaves), \emph{uniform allocation of variance across octaves} corresponds physically to a $1/f$ power spectrum---equal energy per octave. Thus the cooperative equilibrium of ``fairness'' among scales naturally generates the ubiquitous pink noise signature of living systems. Equation~\ref{eq:payoff} is a minimal schematic; accompanying simulations use concave (log) utility with additional concentration penalties, but the qualitative behavior---cooperation enforced by survival coupling---is robust across formulations.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\textwidth]{figures/fig4_game_schematic.png}
+\caption{\textbf{Game-theoretic interpretation: scales as cooperative agents.} Left: Five scales (molecular to organismal) form a cooperative structure where each scale's fitness depends on system persistence. Right: Dynamics of allocation over time---stable cooperation (top) versus collapse when one scale defects (bottom). The survival coupling parameter $\lambda$ determines whether cooperation is a stable equilibrium.}
+\label{fig:game}
+\end{figure}
+
+\subsection{Survival Selection Enforces Cooperation}
+
+The crucial mechanism is survival selection. In biological systems, components at one scale have their fitness coupled to system survival at higher scales:
+\begin{itemize}
+    \item A cancer cell that kills its host gets zero long-term fitness
+    \item A bacterium that over-exploits its host loses its habitat
+    \item An organelle that damages its cell dies with it
+\end{itemize}
+
+The ``instability penalty'' in the game is not arbitrary---it reflects the evolutionary reality that components embedded in larger systems have their fitness tied to system persistence \citep{michod1999, okasha2005}. In our model, this manifests as a nonlinear fitness penalty for deviating from the martingale balance. This creates a basin of attraction around the cooperative equilibrium; as long as the ``depth'' of this basin (the survival penalty) exceeds the local incentive to defect, the multiscale structure remains stable.
+
+\subsection{Dimension Matching as Equilibrium}
+
+In this framework, dimension matching corresponds to the Nash equilibrium of the cross-scale coordination game. When each scale contributes according to a martingale-balanced ``budget,'' no scale can profitably deviate. Defection is punished by system collapse, which zeros out the defector's fitness.
+
+The major evolutionary transitions \citep{maynardsmith1995, west2015}---the origin of chromosomes, of cells, of eukaryotes, of multicellularity, of sociality---can be understood as the establishment of stable cross-scale games. Each transition created a new level of organization by solving the cooperation problem at a new scale.
+
+\subsection{Collapse as Defection}
+
+At the critical threshold, the equilibrium breaks. Defection becomes profitable (or unavoidable), one scale dominates, and the cooperative structure collapses. This maps onto the GMC phase transition: below $\gamma_c$, dimension matching holds; above it, the measure collapses.
+
+Biological parallels are clear: cancer is cellular defection; seizure is neural defection (one mode of dynamics dominating); autoimmune disease is immune defection. Each represents a scale ``winning'' at the expense of cross-scale coordination.
+
+%==============================================================================
+\section{Relation to Existing Frameworks}
+\label{sec:relation}
+%==============================================================================
+
+Our proposal connects to several influential frameworks. We briefly situate dimension matching relative to each.
+
+\subsection{Integrated Information Theory}
+
+Integrated Information Theory (IIT) \citep{tononi2004, tononi2008, oizumi2014, tononi2016} proposes that consciousness corresponds to integrated information ($\Phi$)---information generated by a system above and beyond its parts. High $\Phi$ requires both differentiation (many distinguishable states) and integration (states that cannot be decomposed into independent components).
+
+Dimension matching provides a different formalization of ``integration.'' When $D_C = D_F$, geometric and spectral views of the system agree---information is consistently organized across observational modes. The collapse of dimension matching corresponds to loss of integration: scales decouple, and the system becomes decomposable.
+
+IIT focuses on intrinsic causal structure; dimension matching focuses on cross-scale consistency. These may be complementary perspectives on the same underlying phenomenon.
+
+\textbf{Distinguishing prediction:} IIT predicts that $\Phi$ should track consciousness even in systems with unusual architectures (e.g., feedforward networks with high $\Phi$). Dimension matching predicts that $\varepsilon$ should track \emph{viability}, not necessarily consciousness---a system could be unconscious but viable (deep sleep) or conscious but dying (terminal lucidity). IIT makes claims about experience; dimension matching makes claims about persistence.
+
+\subsection{The Free Energy Principle}
+
+The Free Energy Principle (FEP) \citep{friston2006, friston2010, friston2012, friston2013} proposes that living systems minimize variational free energy---a bound on surprise---by maintaining accurate internal models of their environment. Ramstead et al. \citep{ramstead2018} explicitly connect FEP to Schr\"{o}dinger's question about life.
+
+Dimension matching may characterize systems that successfully minimize free energy across scales. When dimension matching holds, coarse-scale models faithfully predict fine-scale structure (the martingale property). When it breaks, predictions fail, surprise increases, and the system destabilizes.
+
+FEP emphasizes predictive modeling; dimension matching emphasizes cross-scale consistency. Again, these may be complementary.
+
+\textbf{Distinguishing prediction:} FEP predicts that systems minimizing free energy should persist. Dimension matching adds specificity: the \emph{signature} of successful free energy minimization is low $\varepsilon$. A system could have low prediction error at one scale while failing to coordinate across scales (cancer cells model their local environment well). Dimension matching predicts this would still show elevated $\varepsilon$ and eventual failure.
+
+\subsection{Self-Organized Criticality}
+
+Bak, Tang, and Wiesenfeld \citep{bak1987} introduced self-organized criticality (SOC): the idea that many complex systems naturally evolve toward critical states characterized by power-law distributions and scale-free dynamics. Bak \citep{bak1996} argued that SOC underlies phenomena from earthquakes to evolution.
+
+The neural criticality hypothesis \citep{beggs2003, mora2011} applies SOC to the brain. Our framework adds specificity: the relevant critical point is where dimension matching breaks. SOC provides mechanisms for how systems reach criticality; dimension matching provides a signature for when they're there.
+
+\textbf{Distinguishing prediction:} SOC predicts power-law distributions and scale-free dynamics. Dimension matching predicts that power-law behavior is necessary but not sufficient---the \emph{exponents} of geometric and spectral scaling must match. A system could show power-law avalanches (SOC-like) while having mismatched scaling exponents (elevated $\varepsilon$). Dimension matching provides a finer-grained signature than criticality alone.
+
+\subsection{Autopoiesis}
+
+The autopoietic tradition \citep{maturana1980, varela1991, thompson2007} defines living systems as self-producing organizations that maintain their identity through continuous material flux. Di Paolo \citep{dipaolo2005} extends this to emphasize adaptivity---the capacity to regulate conditions of viability.
+
+Dimension matching offers a potential operationalization: a system is autopoietic to the extent that it maintains cross-scale coherence despite perturbation. The game-theoretic interpretation adds the mechanism: autopoiesis is maintained cooperative equilibrium.
+
+\textbf{Distinguishing prediction:} Autopoiesis emphasizes organizational closure and self-production but lacks a quantitative signature. Dimension matching provides one: $\varepsilon$ should be low in autopoietic systems and rise as autopoiesis degrades. This makes the concept measurable and falsifiable.
+
+%==============================================================================
+\section{Testing Dimension Matching: Challenges and Directions}
+\label{sec:testing}
+%==============================================================================
+
+We must be honest: directly testing whether dimension matching characterizes life faces substantial challenges. This section assesses what would be required and outlines possible approaches.
+
+\subsection{Measurement Challenges}
+
+\textbf{Timescale mismatch.} Biological scales span orders of magnitude: molecular dynamics (nanoseconds), calcium oscillations (seconds), gene expression (minutes-hours), cell cycle (hours-days). Capturing coherent measurements across this range is not currently feasible.
+
+\textbf{Observable selection.} In GMC, the field is mathematically defined. In biological systems, we must choose what to measure. Calcium? Membrane potential? Metabolic flux? Gene expression? How these relate to an underlying ``complexity field'' is unclear.
+
+\textbf{Finite data.} True dimension estimation requires asymptotic limits ($\varepsilon \to 0$ for correlation dimension, $n \to \infty$ for Fourier dimension). Biological measurements yield finite, noisy traces. Dimension estimates from finite data are notoriously unreliable \citep{grassberger1983b}.
+
+\textbf{Proxy validity and calibration.} Direct calculation of $D_C$ and $D_F$ requires asymptotic limits ($\varepsilon \to 0$, $n \to \infty$) unattainable in finite biological data. We therefore propose practical proxies that capture analogous properties: the \textbf{Participation Ratio (PR)} of the covariance eigenspectrum serves as a finite-size estimator for geometric occupancy ($D_C$), measuring the effective number of active modes in the system's state space. \textbf{Spectral Entropy} quantifies the flatness of the power spectrum, which is directly related to the decay rate of Fourier coefficients ($D_F$). While these proxies are not mathematically identical to the fractal dimensions, they share the same critical behavior: in the subcritical regime, both are high; at collapse, both drop toward unity/zero. Testing dimension matching empirically requires calibrating these proxies to a baseline ``healthy'' state to ensure their absolute values are comparable \citep{grassberger1983b, costa2002}.
+
+\subsection{Experimental Directions}
+
+Despite these challenges, several approaches might provide partial tests:
+
+\textbf{Reduced systems.} Synthetic minimal cells or cell-free biochemical oscillators have fewer scales and cleaner dynamics. Testing whether proxy agreement correlates with system viability could provide initial evidence.
+
+\textbf{Specific subsystems.} Mitochondrial networks have well-characterized multiscale structure and central roles in cell death. Testing whether dimension proxies degrade before death markers could be tractable.
+
+\textbf{Tissue-level studies.} Using cells as the ``scale'' in tissue imaging provides good temporal resolution with clear spatial hierarchy. Testing proxy agreement in healthy vs. pathological tissue (cancer, inflammation) is feasible with current technology.
+
+\textbf{Perturbation studies.} Even without measuring dimensions directly, we can test predictions: interventions that restore cross-scale coupling should improve both proxy agreement and biological outcomes.
+
+\textbf{Cross-species comparison.} If dimension matching is universal to life, proxy measures should behave similarly across bacteria, yeast, plants, and animals under healthy vs. stress conditions.
+
+\subsection{A Minimal Viable Experiment}
+
+To make this framework actionable, we propose a concrete initial test using existing data and methods:
+
+\textbf{System:} Heart rate variability (HRV) in patients with known outcomes.
+
+\textbf{Data:} Publicly available datasets (e.g., PhysioNet) with continuous ECG recordings and mortality/morbidity outcomes.
+
+\textbf{Pipeline:}
+\begin{enumerate}
+    \item Extract R-R interval time series from ECG (standard preprocessing).
+    \item Compute \textbf{geometric proxy} $D_{\text{geom}}$: participation ratio of the covariance matrix eigenspectrum from delay-embedded R-R intervals.
+    \item Compute \textbf{spectral proxy} $D_{\text{spec}}$: spectral entropy of the power spectrum of R-R intervals.
+    \item Normalize both proxies to a common scale (e.g., divide by healthy-group mean).
+    \item Compute match error $\varepsilon$ (Eq.~\ref{eq:match_error}).
+\end{enumerate}
+
+\textbf{Prediction:} Match error $\varepsilon$ will predict adverse outcomes (mortality, cardiac events) \emph{better than either proxy alone}. The added predictive value of $\varepsilon$ over standard HRV metrics would constitute initial evidence for the dimension matching hypothesis.
+
+\textbf{Controls:} Compare $\varepsilon$ against (a) each proxy individually, (b) standard HRV metrics (SDNN, RMSSD, LF/HF ratio), and (c) simple combinations of proxies (e.g., their product or sum). If $\varepsilon$ adds predictive value beyond these controls, it suggests the \emph{matching} relationship---not just raw complexity---carries biological information.
+
+This experiment is feasible with existing data and standard analysis tools. A positive result would motivate extension to tissue and cellular systems.
+
+\textbf{Why synthetic validation must precede empirical testing.} Before applying these metrics to real biological data, we must establish that they behave correctly on known ground truth. Real physiological signals are noisy, nonstationary, and confounded by artifacts. If empirical tests fail, we need to know whether the hypothesis is wrong or the metrics are unreliable. Synthetic validation (Section~\ref{sec:validation}) provides this calibration: it confirms that our proxies respond appropriately to controlled variations in spectral and geometric complexity, and that match error $\varepsilon$ increases when these are imbalanced. Only after this calibration can empirical results be meaningfully interpreted.
+
+\textbf{Normalization considerations.} Comparing geometric and spectral proxies requires placing them on a common scale. This normalization must be derived from a \emph{healthy population baseline} (Z-scoring against mean and standard deviation of healthy subjects) rather than ad hoc scaling. Incorrect normalization could create artificial ``matching'' or ``mismatch.'' Any empirical study must pre-register the normalization procedure based on healthy controls before testing pathological cases.
+
+\subsection{What Would Constitute Evidence?}
+
+Strong evidence for dimension matching as life's signature would require:
+\begin{enumerate}
+    \item Demonstration that appropriate proxies agree in healthy systems across measurement modalities
+    \item Demonstration that proxy agreement degrades before or concurrent with death/pathology
+    \item Demonstration that interventions restoring coordination improve both proxy agreement and biological outcomes
+    \item Consistency across diverse biological systems
+\end{enumerate}
+
+This is a high bar. We do not claim to have met it. We claim only that dimension matching provides a precise, testable framework that organizes existing observations and generates novel predictions.
+
+\subsection{Validation on GMC Simulations}
+\label{sec:validation}
+
+To validate that estimator agreement holds when dimension matching is mathematically guaranteed, we simulated GMC measures across the subcritical regime (Figure~\ref{fig:validation}). These are \emph{not} biological data---they are mathematical constructions where the Lin-Qiu-Tan theorem guarantees $D_C = D_F = D^*(\gamma)$.
+
+As predicted by theory, both geometric (correlation dimension $D_C$) and spectral (Fourier dimension $D_F$) estimators track the theoretical curve and agree with each other across the subcritical regime ($\gamma < \sqrt{2}$). Near the critical point, variance increases and estimates diverge as the system approaches collapse.
+
+This calibration confirms that our estimators correctly identify dimension matching when it is guaranteed to hold, and correctly identify its breakdown at the critical threshold. Having established this baseline, future empirical work can test whether biological systems exhibit similar estimator agreement---and whether pathology corresponds to its degradation.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\textwidth]{figures/fig2_dimension_matching.png}
+\caption{\textbf{Dimension matching in GMC simulations.} Left: Correlation dimension $D_C$ and Fourier dimension $D_F$ estimates across the subcritical regime ($\gamma < \sqrt{2}$). Theory curve shows $D^*(\gamma)$ from Lin-Qiu-Tan (2024). Right: Agreement between geometric ($D_C$) and spectral ($D_F$) estimators. In the subcritical regime, dimension matching holds; at criticality, it breaks.}
+\label{fig:validation}
+\end{figure}
+
+%==============================================================================
+\section{Discussion}
+\label{sec:discussion}
+%==============================================================================
+
+\subsection{Summary of Claims}
+
+We have proposed that dimension matching---the coincidence of geometric and spectral complexity measures---provides a candidate signature for the boundary between life and death. The framework rests on:
+
+\begin{enumerate}
+    \item \textbf{Mathematical foundation}: The GMC dimension matching theorem establishes that $D_C = D_F$ when martingale balance holds, and that matching breaks at a critical phase transition.
+
+    \item \textbf{Biological motivation}: Extensive evidence shows that loss of multiscale complexity precedes death across physiological systems.
+
+    \item \textbf{Game-theoretic grounding}: Survival selection enforces cooperation across biological scales, providing a mechanism for why dimension matching might hold in living systems.
+
+    \item \textbf{Connections}: The framework relates to existing theories (IIT, FEP, criticality, autopoiesis) while providing distinct predictions.
+\end{enumerate}
+
+\subsection{What We Do Not Claim}
+
+We do not claim:
+\begin{itemize}
+    \item That biological systems literally instantiate GMC (the mathematical structure is a template, not a literal model)
+    \item That we can currently measure dimension matching in living cells (the measurement challenges are severe)
+    \item That dimension matching is proven to characterize life (it is a hypothesis)
+    \item That this framework supersedes existing theories (it is complementary)
+\end{itemize}
+
+\textbf{Dormant life: evidence for geometry over thermodynamics.} Dormant states---tardigrades in cryptobiosis, bacterial spores, frozen embryos, seeds---provide crucial evidence that life cannot be defined thermodynamically. In a purely thermodynamic framework (Schr\"{o}dinger's ``negative entropy,'' Prigogine's dissipative structures), frozen = dead: no metabolism, no energy flow, no entropy export. Yet these systems are manifestly not dead---they resume full function upon reactivation.
+
+The geometric framework explains this naturally. What persists in dormancy is not dynamics but \emph{structure}: the geometric relationships, the constraint architecture, the shape of the attractor. The oscillations that normally maintain these constraints are paused, but the constraints themselves remain intact. Upon reactivation, dynamics resume \emph{within the preserved geometry}.
+
+This is precisely what distinguishes viable dormancy from death. In death, the geometric structure degrades---proteins denature, membranes rupture, compartmentalization fails. The attractor dissolves. In dormancy, the structure is preserved in a stable low-energy configuration, awaiting the return of conditions that permit dynamics. Life is not ongoing thermodynamic activity; it is \emph{preserved geometric coherence that can support dynamics}. Dormancy is the proof.
+
+\textbf{Nonliving complex systems.} Another objection concerns nonliving systems that exhibit multiscale complexity: turbulent flows, hurricanes, convection cells. These are far from equilibrium and show power-law scaling. Do they exhibit estimator agreement? Possibly---but they lack \emph{active maintenance} of that agreement. A hurricane does not ``work'' to preserve its structure; it exists as long as external conditions support it and dissipates when they change. Living systems actively regulate their internal conditions to maintain cross-scale coherence (homeostasis, repair, adaptation). The signature of life may not be estimator agreement per se, but \emph{actively maintained} estimator agreement despite perturbation. This connects to the constraint closure literature: living systems perform work to build and maintain the constraints that channel their dynamics.
+
+\textbf{Abiogenesis: when dimension matching began.} This framework suggests a specific criterion for the origin of life. The first living systems were not merely autocatalytic chemical cycles (though they included these), nor merely membrane-bounded compartments (though they included these), nor merely information-bearing polymers (though they included these). The first living systems were the first chemical configurations that achieved \emph{dimension matching}---the first matter that oscillated coherently across scales, whose geometric structure constrained its dynamics and whose dynamics maintained its geometric structure. This is a testable claim in principle: prebiotic chemical systems can be constructed with varying degrees of multiscale organization, and the transition to self-maintaining dynamics should correlate with the emergence of estimator agreement. The origin of life was the origin of geometry that maintains itself.
+
+\subsection{Why This Matters}
+
+Despite its speculative nature, we believe this framework is valuable because:
+
+\textbf{Precision.} Unlike vague appeals to ``complexity'' or ``organization,'' dimension matching has a mathematical definition. This enables clear predictions and potential falsification.
+
+\textbf{Unification.} The same framework addresses heart rate variability, neural complexity, cancer, cellular cognition, and evolutionary transitions. This unification is suggestive even if not conclusive.
+
+\textbf{Grounding.} The game-theoretic interpretation connects abstract mathematics to evolutionary biology. Survival selection is real and provides the mechanism.
+
+\textbf{Direction.} Even if untestable now, the framework identifies what would need to be measured. It provides a research program.
+
+\textbf{A state equation for living matter.} Finally, this framework suggests a shift in how we define the physical state of life. Traditional thermodynamic views define life by its distance from equilibrium---Schr\"{o}dinger's ``negative entropy'' feeding. The dimension matching framework defines life instead by its \emph{geometric coherence across scales}. Much like a ferromagnet loses its magnetization at the Curie temperature through symmetry breaking, we propose that living matter loses its essential character at a critical threshold where $D_C$ and $D_F$ decouple. The mathematics we employ---Gaussian multiplicative chaos---originated in 2D quantum gravity and turbulence, contexts where geometry itself fluctuates. We are, in effect, arguing that living systems maintain a specific ``geometry of information'' that dead matter cannot. Life is not just energetic activity far from equilibrium; it is a mathematically definable regime of multiscale coordination, and death is the phase transition where that coordination breaks.
+
+\subsection{The Geometry of Existence}
+
+This framework suggests a deep isomorphism between the stability of physical spacetimes and the stability of living systems. In quantum gravity and GMC, a spacetime geometry can only exist if the roughness parameter $\gamma$ remains subcritical; beyond the threshold $\gamma_c = \sqrt{2}$, the metric collapses, and the ``universe'' dissolves into a set of disjoint points with no coherent structure. We propose that living systems face an identical constraint. To exist as a unified entity rather than a soup of dissociated chemicals, an organism must maintain cross-scale coherence---dimension matching.
+
+This reframes the role of metabolism. Free energy dissipation is not the \emph{definition} of life, but the \emph{mechanism} used to pay the ``entropy tax'' required to keep the system in the subcritical, dimension-matched regime. Life is a dissipative system acting as a geometric stabilizer (Figure~\ref{fig:phase}).
+
+The connection to criticality research is now clear. The standard view holds that brains operate near criticality to maximize dynamic range and information transmission \citep{beggs2003, shew2013}. Our view extends this: the \emph{entire organism} operates at the criticality of dimension matching to prevent geometric collapse. Criticality is not just computationally optimal---it is existentially necessary. The ``habitable zone'' for life is the subcritical regime where $D_C = D_F$; departure from this zone is death.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.95\textwidth]{figures/fig3_game_dynamics.png}
+\caption{\textbf{Phase structure in the toy coordination game (model).} This figure illustrates the payoff dynamics from Eq.~\ref{eq:payoff} under different values of the survival coupling parameter $\lambda$. \textbf{Coherent regime} (high $\lambda$, green): the instability penalty dominates, and a perturbed system returns to near-uniform allocation, demonstrating the basin of attraction around cooperation. \textbf{Transition} (intermediate $\lambda$, orange): the system hovers near the critical boundary. \textbf{Collapse} (low $\lambda$, red): local gain dominates, one scale ``wins,'' and cooperative structure breaks down. Top row: allocation across scales over time; dashed line indicates uniform allocation. Bottom row: match error proxy ($|D_{\text{geom}} - D_{\text{spec}}|$). We propose that living systems inhabit the coherent regime, with death corresponding to transition across the critical boundary. This is a \emph{toy model} illustrating the conceptual structure; the threshold values are illustrative, not empirically calibrated.}
+\label{fig:phase}
+\end{figure}
+
+\subsection{Conclusion}
+
+We have proposed that dimension matching---the coincidence of geometric and spectral complexity measures, proven for Gaussian multiplicative chaos---provides a candidate mathematical signature for the boundary between life and death. Living systems maintain cross-scale coordination that keeps these measures in agreement. Death is the collapse of this coordination.
+
+The proposal is a hypothesis, not a proven result. The measurement challenges are substantial. But the framework is mathematically precise, biologically motivated, and empirically suggestive.
+
+If correct, the implications are profound. Life is not merely far-from-equilibrium thermodynamics---it is maintained cross-scale cooperative equilibrium. Death is defection from this equilibrium. Intelligence is the capacity to sustain dimension matching while adapting to environmental demands. And the major transitions in evolution were the establishment of stable cross-scale games at successively higher levels.
+
+We offer this framework not as final truth, but as a precise hypothesis worthy of investigation.
+
+%==============================================================================
+% REFERENCES
+%==============================================================================
+\bibliography{references}
+
+\end{document}

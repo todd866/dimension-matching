@@ -3,10 +3,6 @@ Neural EEG Analysis v2: Dimension Matching in Brain States
 
 Improved version with more realistic dimension estimation.
 Uses participation ratio and spectral entropy for more stable estimates.
-
-NOTE: This generates SYNTHETIC EEG data to validate that the dimension
-matching metric behaves as expected under different simulated conditions.
-Results demonstrate metric behavior, NOT empirical discoveries about brains.
 """
 
 import numpy as np
@@ -89,20 +85,14 @@ def generate_synthetic_eeg(
 def compute_geometric_complexity(eeg: np.ndarray) -> float:
     """
     Geometric complexity via participation ratio of covariance eigenspectrum.
-
-    The participation ratio (PR) measures the effective number of active modes
-    in the covariance matrix. It correlates with the geometric spread of the
-    attractor in state space, serving as a finite-size estimator for D_C.
-
-    PR = 1 means one mode dominates (collapsed system)
-    PR = N means all N modes equally active (maximally distributed)
+    Higher = more dimensions active = more complex geometry.
     """
     cov = np.cov(eeg)
     eigenvalues = np.linalg.eigvalsh(cov)
     eigenvalues = eigenvalues[eigenvalues > 1e-10]
     eigenvalues = eigenvalues / np.sum(eigenvalues)
 
-    # Participation ratio: (sum lambda)^2 / sum(lambda^2)
+    # Participation ratio
     pr = 1.0 / np.sum(eigenvalues**2)
     return pr
 
@@ -110,15 +100,7 @@ def compute_geometric_complexity(eeg: np.ndarray) -> float:
 def compute_spectral_complexity(eeg: np.ndarray, fs: float = 256.0) -> float:
     """
     Spectral complexity via entropy of power spectrum.
-
-    Spectral entropy measures the flatness of the power spectrum, which is
-    directly related to the decay rate of Fourier coefficients (D_F).
-
-    High spectral entropy = power distributed across frequencies = rich harmonics
-    Low spectral entropy = power concentrated in few frequencies = collapsed
-
-    Note: The scaling factor (* 10) is for visual comparability with PR.
-    Empirical use requires calibration to a baseline healthy state.
+    Higher = more distributed power = richer harmonics.
     """
     freqs, psd = signal.welch(eeg, fs=fs, nperseg=512)
     psd_avg = np.mean(psd, axis=0)
@@ -132,7 +114,7 @@ def compute_spectral_complexity(eeg: np.ndarray, fs: float = 256.0) -> float:
     # Normalize by max entropy
     se_norm = se / np.log(len(psd_norm))
 
-    # Scale to comparable range with PR
+    # Scale to comparable range
     return se_norm * 10
 
 
@@ -198,7 +180,7 @@ def plot_neural_results_v2(results: dict):
 
     ax1.set_xlabel('Time (s)')
     ax1.set_ylabel('State')
-    ax1.set_title('(A) Synthetic EEG Traces', fontweight='bold')
+    ax1.set_title('(A) Example EEG Traces', fontweight='bold')
     ax1.legend(loc='upper right', fontsize=9)
     ax1.set_yticks([0, 5, 10, 15])
     ax1.set_yticklabels(state_labels)
@@ -261,12 +243,12 @@ def plot_neural_results_v2(results: dict):
     if means[2] > means[0]:  # seizure > awake
         ax4.annotate('*', xy=(2, means[2] + stds[2] + 0.05), ha='center', fontsize=14)
 
-    plt.suptitle('Validation of Dimension Matching Metric on Synthetic EEG Data',
+    plt.suptitle('Neural Dynamics: Dimension Matching Tracks Coherence',
                  fontsize=14, fontweight='bold', y=1.02)
     plt.tight_layout()
-    plt.savefig('../figures/fig2_neural_validation.png', dpi=150, bbox_inches='tight')
-    plt.savefig('../figures/fig2_neural_validation.pdf', bbox_inches='tight')
-    print("\nSaved fig2_neural_validation.png/pdf")
+    plt.savefig('../figures/fig7_neural_analysis.png', dpi=150, bbox_inches='tight')
+    plt.savefig('../figures/fig7_neural_analysis.pdf', bbox_inches='tight')
+    print("\nSaved fig7_neural_analysis.png/pdf")
     plt.close()
 
 
@@ -275,7 +257,7 @@ if __name__ == "__main__":
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
     print("="*60)
-    print("Neural EEG Analysis v2 - SYNTHETIC DATA VALIDATION")
+    print("Neural EEG Analysis v2")
     print("="*60)
 
     results = analyze_brain_states_v2()

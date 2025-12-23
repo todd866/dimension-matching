@@ -255,7 +255,7 @@ def figure4_game_schematic():
     ax1.set_xlim(-1.5, 1.5)
     ax1.set_ylim(-1.5, 1.5)
 
-    # Draw scales as circles
+    # Setup
     n_scales = 5
     angles = np.linspace(0, 2*np.pi, n_scales, endpoint=False)
     radius = 0.8
@@ -264,18 +264,19 @@ def figure4_game_schematic():
                     'Scale 4', 'Scale 5\n(fine)']
     colors = plt.cm.Blues(np.linspace(0.3, 0.8, n_scales))
 
-    for i, (angle, label, color) in enumerate(zip(angles, scale_labels, colors)):
-        x, y = radius * np.cos(angle), radius * np.sin(angle)
-        circle = Circle((x, y), 0.25, facecolor=color, edgecolor='black', linewidth=2)
-        ax1.add_patch(circle)
-        ax1.text(x, y, label, ha='center', va='center', fontsize=8, fontweight='bold')
-
-    # Draw connections (cooperation)
+    # Draw connections (pentagram) FIRST so they appear behind circles
     for i in range(n_scales):
         for j in range(i+1, n_scales):
             x1, y1 = radius * np.cos(angles[i]), radius * np.sin(angles[i])
             x2, y2 = radius * np.cos(angles[j]), radius * np.sin(angles[j])
-            ax1.plot([x1, x2], [y1, y2], 'g-', linewidth=1.5, alpha=0.5)
+            ax1.plot([x1, x2], [y1, y2], 'g-', linewidth=1.5, alpha=0.5, zorder=1)
+
+    # Draw scales as circles ON TOP of connections
+    for i, (angle, label, color) in enumerate(zip(angles, scale_labels, colors)):
+        x, y = radius * np.cos(angle), radius * np.sin(angle)
+        circle = Circle((x, y), 0.25, facecolor=color, edgecolor='black', linewidth=2, zorder=2)
+        ax1.add_patch(circle)
+        ax1.text(x, y, label, ha='center', va='center', fontsize=8, fontweight='bold', zorder=3)
 
     # Center annotation
     ax1.text(0, 0, 'Martingale\nBalance', ha='center', va='center',
@@ -367,22 +368,25 @@ def figure5_information_vs_dimension():
                 ha='center', va='center',
                 bbox=dict(boxstyle='round', facecolor='lightcyan', alpha=0.7))
 
-    # High-D, High-Info: Complex / critical
+    # Arrow: dimension matching trajectory (draw FIRST so boxes appear on top)
+    ax.annotate('', xy=(0.68, 0.68), xytext=(0.2, 0.2),
+                arrowprops=dict(arrowstyle='->', color='blue', lw=2,
+                               connectionstyle='arc3,rad=0.15'),
+                zorder=1)
+    ax.text(0.52, 0.32, 'Dimension\nMatching\nRegime', fontsize=9, color='blue',
+            rotation=0, ha='left', va='center', zorder=5)
+
+    # High-D, High-Info: Complex / critical (draw AFTER arrow so it's on top)
     ax.annotate('Complex\nDynamics\n(coherent chaos)', xy=(0.7, 0.7), fontsize=10,
                 ha='center', va='center', fontweight='bold',
-                bbox=dict(boxstyle='round', facecolor='lightgreen', alpha=0.7))
+                bbox=dict(boxstyle='round', facecolor='lightgreen', alpha=0.9, edgecolor='darkgreen', linewidth=1.5),
+                zorder=10)
 
     # Pure noise corner
     ax.annotate('Pure Noise', xy=(0.9, 0.9), fontsize=10,
                 ha='center', va='center',
-                bbox=dict(boxstyle='round', facecolor='lightsalmon', alpha=0.7))
-
-    # Arrow: dimension matching trajectory
-    ax.annotate('', xy=(0.75, 0.75), xytext=(0.2, 0.2),
-                arrowprops=dict(arrowstyle='->', color='blue', lw=2,
-                               connectionstyle='arc3,rad=0.1'))
-    ax.text(0.35, 0.55, 'Dimension\nMatching\nRegime', fontsize=9, color='blue',
-            rotation=45, ha='center', va='center')
+                bbox=dict(boxstyle='round', facecolor='lightsalmon', alpha=0.7),
+                zorder=10)
 
     # Arrow: collapse
     ax.annotate('', xy=(0.9, 0.85), xytext=(0.75, 0.75),

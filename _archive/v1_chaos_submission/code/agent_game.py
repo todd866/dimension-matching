@@ -80,13 +80,7 @@ def multiscale_cascade(
 
         signal += component
 
-    # Add cross-scale coupling using np.roll
-    # The roll operation introduces phase correlations between scales without
-    # requiring explicit differential equations. Rolling by 2^s samples creates
-    # a delayed feedback that mimics how slower scales (larger s) influence
-    # faster dynamics with a characteristic lag. This captures the essential
-    # feature of multiscale coupling: information flows between scales with
-    # scale-dependent delays.
+    # Add cross-scale coupling
     for s in range(1, n_scales):
         signal += coupling * allocation[s] * np.roll(signal, 2**s)
 
@@ -174,14 +168,9 @@ def compute_payoff(
 
     Payoff = local gains - AGENT-SPECIFIC instability penalty
 
-    The key insight: the stability penalty is agent-specific. Each agent is
-    penalized for deviating from the uniform (martingale) allocation via a
-    quadratic penalty: (allocation - uniform)^2. This creates a basin of
-    attraction around the cooperative equilibrium. The "depth" of this basin
-    (controlled by stability_weight) determines how strongly defection is
-    punished. When stability_weight is high, the basin is deep and cooperation
-    is stable. When low, local incentives can overcome the penalty and trigger
-    collapse.
+    The key change: stability penalty is now agent-specific (each agent
+    penalized for its own over-allocation), not a common-mode term.
+    This ensures stability_weight actually changes relative incentives.
 
     Parameters
     ----------
@@ -190,7 +179,7 @@ def compute_payoff(
     local_gain_weight : float
         Weight for local variance gains
     stability_weight : float
-        Weight for individual stability penalty (basin depth)
+        Weight for individual stability penalty
     n_samples : int
         Number of samples for averaging
 
@@ -212,7 +201,6 @@ def compute_payoff(
 
     # AGENT-SPECIFIC stability penalty: penalize YOUR OWN over-allocation
     # Each agent pays a cost proportional to how much they exceed uniform share
-    # This quadratic penalty creates the basin of attraction around equilibrium
     individual_penalties = stability_weight * (allocation - uniform) ** 2
 
     # Additional penalty: agents also care about global concentration
@@ -365,13 +353,13 @@ def simulate_dynamics(
 
 def plot_game_dynamics(
     n_scales: int = 5,
-    stability_weights: List[float] = [0.05, 0.5, 5.0]
+    stability_weights: List[float] = [0.05, 0.5, 3.0]
 ):
     """
     Plot game dynamics for different stability weights.
 
-    Lower stability weight -> easier to collapse (one scale dominates)
-    Higher stability weight -> dimension matching maintained
+    Lower stability weight → easier to collapse (one scale dominates)
+    Higher stability weight → dimension matching maintained
 
     Use extreme weights to show clearer differentiation between regimes.
     """
@@ -388,10 +376,8 @@ def plot_game_dynamics(
             init_alloc = np.array([0.3, 0.25, 0.2, 0.15, 0.1])
             learning_rate = 0.15
         else:
-            # High stability: start perturbed, show RETURN to near-uniform
-            # This demonstrates the basin of attraction around cooperation
-            init_alloc = np.array([0.35, 0.25, 0.2, 0.12, 0.08])
-            learning_rate = 0.15
+            init_alloc = None  # Will use uniform + noise
+            learning_rate = 0.1
 
         alloc_hist, payoff_hist, dim_hist = simulate_dynamics(
             n_scales=n_scales,
@@ -442,9 +428,9 @@ def plot_game_dynamics(
     plt.suptitle('Multiscale Coordination Game: From Collapse to Coherence',
                  fontsize=14, fontweight='bold')
     plt.tight_layout()
-    plt.savefig('../figures/fig3_game_dynamics.png', dpi=150)
-    plt.savefig('../figures/fig3_game_dynamics.pdf')
-    print("Saved fig3_game_dynamics.png/pdf")
+    plt.savefig('../figures/fig6_game_dynamics.png', dpi=150)
+    plt.savefig('../figures/fig6_game_dynamics.pdf')
+    print("Saved fig6_game_dynamics.png/pdf")
     plt.close()
 
 
